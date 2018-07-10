@@ -1,9 +1,9 @@
 
-import Jetty from "jetty";
+import Poo from "jetty";
 
 export function youAreIn(appDir: string) {
 
-    var jetty = new Jetty(process.stdout)
+    var jetty = new Poo(process.stdout)
 
     jetty.text("Hello from " + appDir);
 
