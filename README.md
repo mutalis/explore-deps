@@ -25,6 +25,7 @@ Cover:
 -   type parameters and defaults
 -   interfaces
 -   classes and the tricky bit about private fields
+-   vscode: type hints, useful error messages
 
 
 ## Section 2: The runtime. Node and the many dialects of JavaScript
@@ -40,9 +41,18 @@ Cover:
 -   imports in TypeScript
 -   declaring dependencies. 3 types
 -   what npm does and how to decipher what it does
+-   output: outDir or outFile (amd or system module output only)
 
 ## Section 4: Leveraging TypeScript to find bugs
 
 -   stricter compiler options
 -   testing
+   -   ts-node/register
 -   tslint
+### Compiler options
+-   "lib" brings in type definitions
+-   skipLibChecks lets you not worry about perfect compatibility with every freaking library everywhere
+
+
+useful:
+-   https://blog.angular-university.io/typescript-2-type-system-how-do-type-definitions-work-in-npm-when-to-use-types-and-why-what-are-compiler-opt-in-types/

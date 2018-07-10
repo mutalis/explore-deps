@@ -3,8 +3,12 @@
   "version": "1.0.0",
   "description": "Examples for a talk",
   "main": "build/index.js",
+  "types": "build/index.d.ts",
   "scripts": {
     "test": "mocha --require ts-node/register 'test/**/*.ts'"
+  },
+  "bin": {
+    "explore": "build/cli/explore.js"
   },
   "repository": {
     "type": "git",
@@ -17,6 +21,11 @@
   },
   "homepage": "https://github.com/jessitron/about-typescript#readme",
   "dependencies": {
+    "jetty": "^0.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^10.5.2",
+    "ts-node": "^7.0.0",
     "typescript": "^2.9.2"
   }
 }
