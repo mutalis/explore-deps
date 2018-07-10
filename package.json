@@ -1,0 +1,22 @@
+{
+  "name": "about-typescript",
+  "version": "1.0.0",
+  "description": "Examples for a talk",
+  "main": "build/index.js",
+  "scripts": {
+    "test": "mocha --require ts-node/register 'test/**/*.ts'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jessitron/about-typescript.git"
+  },
+  "author": "jessitron",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jessitron/about-typescript/issues"
+  },
+  "homepage": "https://github.com/jessitron/about-typescript#readme",
+  "dependencies": {
+    "typescript": "^2.9.2"
+  }
+}
