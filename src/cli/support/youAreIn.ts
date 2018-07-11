@@ -5,13 +5,13 @@ import chalk from "chalk";
 import * as inquirer from "inquirer";
 
 import { PackageJSON } from "package-json";
+import { outputCurrentState, output, outputDoom, debug } from "./output";
 
-const bottomBar = new inquirer.ui.BottomBar();
 
 export async function youAreIn(appDir: string) {
 
     const circumstances = determineCircumstances(appDir);
-    console.log("Hello from " + appDir);
+    debug("Hello from " + appDir);
 
     if (circumstances === "not a package") {
         output(`You are in ${appDir}. It is completely dark in here. What even is this place?? `);
@@ -23,9 +23,6 @@ export async function youAreIn(appDir: string) {
     }
 }
 
-function outputCurrentState(str: string) {
-    bottomBar.updateBottomBar(str);
-}
 
 async function timeToAct(p: PackageRoot): Promise<void> {
     const answers = await requestNextAction(p);
@@ -37,7 +34,7 @@ async function timeToAct(p: PackageRoot): Promise<void> {
             output(`You have examined all the doors before you, and chosen: ${answers.door}`);
             const otherSide = findLibraryRoot(answers.door);
             if (itsaTrap(otherSide)) {
-                output(chalk.red("It's a trap! ") + otherSide.error.message)
+                outputDoom(chalk.red("It's a trap! ") + otherSide.error.message)
                 return youAreIn(p.appDir);
             }
             return youAreIn(otherSide);
@@ -60,7 +57,7 @@ function findLibraryRoot(lib: string): string | Trap {
     } catch (error) {
         return { error };
     }
-    console.log(`Resolved ${lib} to ${whereIsIt}`);
+    debug(`Resolved ${lib} to ${whereIsIt}`);
     const dir = path.dirname(whereIsIt);
     return dir;
 }
@@ -97,7 +94,7 @@ function chooseDoor(p: PackageRoot): inquirer.Question<NextActionAnswers> {
     const listOfDependencies: inquirer.ChoiceType[] = Object.keys(p.packageJson.dependencies || {})
         .concat(Object.keys(p.packageJson.devDependencies || {}).map(devdep => chalk.gray(devdep)))
         .sort()
-    // console.log("The dependencies are: " + listOfDependencies.join(" & "))
+    //  debug("The dependencies are: " + listOfDependencies.join(" & "))
     return {
         name: "door",
         type: "list",
@@ -105,10 +102,6 @@ function chooseDoor(p: PackageRoot): inquirer.Question<NextActionAnswers> {
         choices: listOfDependencies.concat([new inquirer.Separator()]),
         when: (a) => a.action === "doors",
     }
-}
-
-function output(msg: string) {
-    console.log(msg);
 }
 
 function determineCircumstances(appDir: string): Circumstances {
