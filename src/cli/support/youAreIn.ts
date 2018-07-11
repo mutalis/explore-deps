@@ -9,6 +9,7 @@ import { outputCurrentState, output, outputDoom, outputDebug } from "./output";
 import { promisify } from "util";
 import { Crawl as LocalCrawl, NodeModuleResolutionExposed, isModuleResolutionError } from "./SecretDungeonCrawl";
 import { injectSecretDungeonCrawl } from "./injectSecretDungeonCrawl";
+import { describeMove } from "./describeMove";
 
 // want to: 
 // - make it find roots of packages, because it fails when it goes into a lib
@@ -70,6 +71,7 @@ function tryToTeleport(room: Room, past: Room[], destination: string) {
     const otherSide = findLibraryRoot(destination, room.crawl);
     if (itsaTrap(otherSide)) {
         outputDoom(chalk.yellow("Your teleport fails."));
+        outputDebug(otherSide.details || otherSide.error.message);
         return youAreIn(room.appDir, past);
     }
     output("Magic! " + describeMove(room.appDir, otherSide));
@@ -87,20 +89,6 @@ function goThroughDoor(room: Room, past: Room[], destination: string) {
     output("You go " + describeMove(room.appDir, otherSide));
     past.push(room);
     return youAreIn(otherSide, past);
-}
-
-export function describeMove(fromDir: string, toDir: string): string {
-    const relativeForward = path.relative(fromDir, toDir);
-    const relativeBackward = path.relative(toDir, fromDir);
-    const upSteps = relativeBackward.split("node_modules").length - 1;
-    const downSteps = relativeForward.split("node_modules").length - 1;
-    if (upSteps > 0) {
-        return `up ${upSteps} stairs and down ${downSteps}.`
-    } else if (downSteps > 0) {
-        return `down ${downSteps} stair.` // should always be 1.
-    } else {
-        return `right through.`;
-    }
 }
 
 type Trap = {
