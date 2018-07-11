@@ -10,12 +10,12 @@ import { promisify } from "util";
 import { Crawl as LocalCrawl, NodeModuleResolutionExposed, isModuleResolutionError } from "./SecretDungeonCrawl";
 import { injectSecretDungeonCrawl } from "./injectSecretDungeonCrawl";
 import { describeMove } from "./describeMove";
+import { findLibraryRoot, itsaTrap } from "./findLibraryRoot";
 
 // want to: 
 // - make it find roots of packages, because it fails when it goes into a lib
 // - make it guess why it couldn't resolve a dev dependency
 // - make it "check GPS" to tell you what dir it's in
-// - make it report how many stairs you went up or down
 // - make it report the difference in versions?
 // - recognize links and remark on warp portal? (sounds hard)
 // - make it tell the story of the resolution, based on the paths? (also hard)
@@ -91,29 +91,6 @@ function goThroughDoor(room: Room, past: Room[], destination: string) {
     return youAreIn(otherSide, past);
 }
 
-type Trap = {
-    error: Error,
-    details?: string
-}
-
-function itsaTrap(t: Trap | string): t is Trap {
-    const maybe = t as Trap;
-    return maybe.error !== undefined;
-}
-
-function findLibraryRoot(lib: string, crawl: NodeModuleResolutionExposed): string | Trap {
-    let whereIsIt;
-    try {
-        whereIsIt = crawl.locateModule(lib);
-    } catch (error) {
-        const details = isModuleResolutionError(error) ?
-            `${error.message}\nfrom ${error.filename}\nPaths searched: ${error.paths.join("\n")}` : undefined;
-        return { error, details };
-    }
-    outputDebug(`Resolved ${lib} to ${whereIsIt}`);
-    const dir = path.dirname(whereIsIt);
-    return dir;
-}
 
 type NextAction = "exit" | "doors" | "back" | "teleport";
 
@@ -133,21 +110,21 @@ const AlwaysChoices: inquirer.objects.ChoiceOption[] = [
         key: "d"
     },
     {
+        name: "Teleport",
+        value: "teleport",
+        key: "t",
+    },
+    {
         name: "Leave",
         value: "exit",
         key: "e",
     },
-    {
-        name: "Teleport",
-        value: "teleport",
-        key: "t",
-    }
 ]
 
 function actionChoices(past: Room[]) {
     if (past.length > 0) {
         const goBack: inquirer.objects.ChoiceOption = {
-            name: "Go back to " + past[0].packageJson.name,
+            name: "Go back to " + past[past.length - 1].packageJson.name,
             value: "back",
             key: "b",
         };
