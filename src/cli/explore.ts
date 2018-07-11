@@ -4,4 +4,4 @@ import { youAreIn } from "./support/youAreIn";
 
 youAreIn(process.cwd());
 
-console.log("everything is fucked here")
+console.log("i tried")

@@ -1,28 +1,47 @@
 
-import Poo from "jetty";
+import * as fs from "fs";
+import * as path from "path";
+
+import { PackageJSON } from "package-json";
 
 export function youAreIn(appDir: string) {
 
-    var jetty = new Poo(process.stdout)
 
-    jetty.text("Hello from " + appDir);
 
-    console.log("fuck you")
+    console.log("Hello from " + appDir);
 
-    // Clear the screen
-    jetty.clear();
 
-    // Draw a circle with fly colours
-    var i = 0;
-    setInterval(function () {
-        i += 0.025;
 
-        var x = Math.round(Math.cos(i) * 25 + 50),
-            y = Math.round(Math.sin(i) * 13 + 20);
+}
 
-        jetty.rgb(
-            Math.round(Math.random() * 215),
-            Math.random() > 0.5
-        ).moveTo([y, x]).text(".");
-    }, 5);
+function determineCircumstances(appDir: string): Circumstances {
+    const pjString: string = readPackageJson(appDir)
+    if (!pjString) {
+        return "not a package";
+    }
+    const pj = parsePackageJson(pjString);
+    if (!pj) {
+        return "invalid package json";
+    }
+}
+
+type NotAPackage = "not a package";
+type InvalidPackageDefinition = "invalid package json";
+
+type Circumstances = NotAPackage | InvalidPackageDefinition
+
+function readPackageJson(appDir: string): string | undefined {
+    try {
+        return fs.readFileSync(path.join(appDir, "package.json"), { encoding: "utf8" })
+    } catch {
+        return;
+    }
+}
+
+function parsePackageJson(pjContent: string): PackageJSON | undefined {
+    try {
+        return JSON.parse(pjContent);
+    } catch {
+        return;
+    }
 }
