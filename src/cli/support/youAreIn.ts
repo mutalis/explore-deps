@@ -6,7 +6,13 @@ import * as inquirer from "inquirer";
 
 import { PackageJSON } from "package-json";
 import { outputCurrentState, output, outputDoom, debug } from "./output";
+import { promisify } from "util";
+import { Crawl as LocalCrawl, NodeModuleResolutionExposed } from "./SecretDungeonCrawl";
 
+const readFile = promisify(fs.readFile);
+const writeFile = promisify(fs.writeFile);
+
+const secretDungeonCrawlModuleContent = fs.readFileSync(LocalCrawl.filename, { encoding: "utf8" });
 
 export async function youAreIn(appDir: string) {
 
@@ -19,12 +25,25 @@ export async function youAreIn(appDir: string) {
         output(`A rat bites your foot! The package.json is invalid in ${appDir}`);
     } else {
         outputCurrentState(`You are in "${circumstances.packageJson.name}". It appears to be version ${circumstances.packageJson.version}.`)
-        return timeToAct(circumstances);
+        return timeToAct({ ...circumstances, crawl: await injectSecretDungeonCrawl(appDir) });
     }
 }
 
+async function injectSecretDungeonCrawl(appDir: string): Promise<NodeModuleResolutionExposed> {
+    // write the secret crawler to the directory of interest
+    const destinationPath: string = path.join(appDir, path.basename(LocalCrawl.filename));
+    debug("writing to: " + destinationPath);
+    await writeFile(destinationPath, secretDungeonCrawlModuleContent, { encoding: "utf8" });
 
-async function timeToAct(p: PackageRoot): Promise<void> {
+    // now load it as a module
+    const relativePath = "./" + path.relative(__dirname, path.join(appDir, "SecretDungeonCrawl.js"));
+    var sdc = require(relativePath);
+
+    return sdc.Crawl;
+}
+
+
+async function timeToAct(p: PackageRoot & { crawl: NodeModuleResolutionExposed }): Promise<void> {
     const answers = await requestNextAction(p);
     output(`You have chosen: ${answers.action}`)
     switch (answers.action) {
@@ -32,7 +51,7 @@ async function timeToAct(p: PackageRoot): Promise<void> {
             return;
         case "doors":
             output(`You have examined all the doors before you, and chosen: ${answers.door}`);
-            const otherSide = findLibraryRoot(answers.door);
+            const otherSide = findLibraryRoot(answers.door, p.crawl);
             if (itsaTrap(otherSide)) {
                 outputDoom(chalk.red("It's a trap! ") + otherSide.error.message)
                 return youAreIn(p.appDir);
@@ -50,10 +69,10 @@ function itsaTrap(t: Trap | string): t is Trap {
     return maybe.error !== undefined;
 }
 
-function findLibraryRoot(lib: string): string | Trap {
+function findLibraryRoot(lib: string, crawl: NodeModuleResolutionExposed): string | Trap {
     let whereIsIt;
     try {
-        whereIsIt = require.resolve(lib);
+        whereIsIt = crawl.locateModule(lib);
     } catch (error) {
         return { error };
     }
@@ -124,7 +143,7 @@ type InvalidPackageDefinition = "invalid package json";
 
 type PackageRoot = {
     packageJson: PackageJSON;
-    appDir: string
+    appDir: string;
 }
 
 type Circumstances = NotAPackage | InvalidPackageDefinition | PackageRoot
