@@ -2,9 +2,11 @@
 import * as fs from "fs";
 import * as path from "path";
 import chalk from "chalk";
-import { Question, prompt, objects } from "inquirer";
+import * as inquirer from "inquirer";
 
 import { PackageJSON } from "package-json";
+
+const bottomBar = new inquirer.ui.BottomBar();
 
 export async function youAreIn(appDir: string) {
 
@@ -16,9 +18,13 @@ export async function youAreIn(appDir: string) {
     } else if (circumstances === "invalid package json") {
         output(`A rat bites your foot! The package.json is invalid in ${appDir}`);
     } else {
-        output(`You are in "${circumstances.packageJson.name}". It appears to be version ${circumstances.packageJson.version}.`)
+        outputCurrentState(`You are in "${circumstances.packageJson.name}". It appears to be version ${circumstances.packageJson.version}.`)
         return timeToAct(circumstances);
     }
+}
+
+function outputCurrentState(str: string) {
+    bottomBar.updateBottomBar(str);
 }
 
 async function timeToAct(p: PackageRoot): Promise<void> {
@@ -63,7 +69,7 @@ type NextAction = "exit" | "doors";
 
 type NextActionAnswers = { action: "exit" } | { action: "doors", door: string }
 
-const ActionChoices: objects.ChoiceOption[] = [
+const ActionChoices: inquirer.objects.ChoiceOption[] = [
     {
         name: "Look for doors",
         value: "doors",
@@ -77,24 +83,26 @@ const ActionChoices: objects.ChoiceOption[] = [
 ]
 
 async function requestNextAction(p: PackageRoot): Promise<NextActionAnswers> {
-    const question: Question<NextActionAnswers> = {
+    const question: inquirer.Question<NextActionAnswers> = {
         name: "action",
         type: "list",
         message: "What would you like to do?",
         choices: ActionChoices
     };
-    const response = await prompt<NextActionAnswers>([question, chooseDoor(p)])
+    const response = await inquirer.prompt<NextActionAnswers>([question, chooseDoor(p)])
     return response;
 }
 
-function chooseDoor(p: PackageRoot): Question<NextActionAnswers> {
-    const listOfDependencies = Object.keys(p.packageJson.dependencies || {}).concat(Object.keys(p.packageJson.devDependencies || {})).sort()
+function chooseDoor(p: PackageRoot): inquirer.Question<NextActionAnswers> {
+    const listOfDependencies: inquirer.ChoiceType[] = Object.keys(p.packageJson.dependencies || {})
+        .concat(Object.keys(p.packageJson.devDependencies || {}).map(devdep => chalk.gray(devdep)))
+        .sort()
     // console.log("The dependencies are: " + listOfDependencies.join(" & "))
     return {
         name: "door",
         type: "list",
         message: `There are ${listOfDependencies.length} doors. Choose one to enter: `,
-        choices: listOfDependencies,
+        choices: listOfDependencies.concat([new inquirer.Separator()]),
         when: (a) => a.action === "doors",
     }
 }
