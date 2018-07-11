@@ -28,13 +28,39 @@ async function timeToAct(p: PackageRoot): Promise<void> {
             return;
         case "doors":
             output(`You have examined all the doors before you, and chosen: ${answers.door}`);
-            return youAreIn(p.appDir);
+            const otherSide = findLibraryRoot(answers.door);
+            if (itsaTrap(otherSide)) {
+                output("It's a trap! " + otherSide.error.message)
+                return youAreIn(p.appDir);
+            }
+            return youAreIn(otherSide);
     }
+}
+
+type Trap = {
+    error: Error
+}
+
+function itsaTrap(t: Trap | string): t is Trap {
+    const maybe = t as Trap;
+    return maybe.error !== undefined;
+}
+
+function findLibraryRoot(lib: string): string | Trap {
+    let whereIsIt;
+    try {
+        whereIsIt = require.resolve(lib);
+    } catch (error) {
+        return { error };
+    }
+    console.log(`Resolved ${lib} to ${whereIsIt}`);
+    const dir = path.dirname(whereIsIt);
+    return dir;
 }
 
 type NextAction = "exit" | "doors";
 
-type NextActionAnswers = { action: NextAction, door?: string }
+type NextActionAnswers = { action: "exit" } | { action: "doors", door: string }
 
 const ActionChoices: objects.ChoiceOption[] = [
     {
@@ -68,7 +94,7 @@ function chooseDoor(p: PackageRoot): Question<NextActionAnswers> {
         type: "list",
         message: `There are ${listOfDependencies.length} doors. Choose one to enter: `,
         choices: listOfDependencies,
-        when: (a) => a.action === "doors"
+        when: (a) => a.action === "doors",
     }
 }
 
