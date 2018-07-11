@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/jessitron/about-typescript#readme",
   "dependencies": {
+    "chalk": "^2.4.1",
     "inquirer": "^6.0.0"
   },
   "devDependencies": {

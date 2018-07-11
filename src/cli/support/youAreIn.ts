@@ -1,6 +1,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import chalk from "chalk";
 import { Question, prompt, objects } from "inquirer";
 
 import { PackageJSON } from "package-json";
@@ -30,7 +31,7 @@ async function timeToAct(p: PackageRoot): Promise<void> {
             output(`You have examined all the doors before you, and chosen: ${answers.door}`);
             const otherSide = findLibraryRoot(answers.door);
             if (itsaTrap(otherSide)) {
-                output("It's a trap! " + otherSide.error.message)
+                output(chalk.red("It's a trap! ") + otherSide.error.message)
                 return youAreIn(p.appDir);
             }
             return youAreIn(otherSide);
