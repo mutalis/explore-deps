@@ -21,12 +21,12 @@ describe("color text for moving to another directory", () => {
     it("move up some random directories", () => {
         const result = describeMove("/Users/jessitron/code/other/yargs",
             "/Users/jessitron/code/node_modules/@atomist/automation-client");
-        assert.strictEqual(result, "You climb two flights of stairs, then descend into @atomist/automation-client")
+        assert.strictEqual(result, "You climb 2 twisted stairs, then descend into automation-client.")
     })
 
     it("move up some node_module directories", () => {
         const result = describeMove("/Users/jessitron/code/other/yargs/node_modules/chai/node_modules/subchai",
             "/Users/jessitron/code/other/yargs/node_modules/ucui");
-        assert.strictEqual(result, "You climb one flight of stairs, then step into ucui")
+        assert.strictEqual(result, "You climb one flight of stairs and step into ucui.")
     });
 });
