@@ -6,16 +6,24 @@ import { PackageJSON } from "package-json";
 
 export function youAreIn(appDir: string) {
 
-
-
+    const circumstances = determineCircumstances(appDir);
     console.log("Hello from " + appDir);
 
+    if (circumstances === "not a package") {
+        output(`You are in ${appDir}. It is completely dark in here. What even is this place?? `);
+    } else if (circumstances === "invalid package json") {
+        output(`A rat bites your foot! The package.json is invalid in ${appDir}`);
+    } else {
+        output(`You are in "${circumstances.packageJson.name}". It appears to be version ${circumstances.packageJson.version}.`)
+    }
+}
 
-
+function output(msg: string) {
+    console.log(msg);
 }
 
 function determineCircumstances(appDir: string): Circumstances {
-    const pjString: string = readPackageJson(appDir)
+    const pjString: string | undefined = readPackageJson(appDir)
     if (!pjString) {
         return "not a package";
     }
@@ -23,12 +31,19 @@ function determineCircumstances(appDir: string): Circumstances {
     if (!pj) {
         return "invalid package json";
     }
+    return {
+        packageJson: pj,
+    }
 }
 
 type NotAPackage = "not a package";
 type InvalidPackageDefinition = "invalid package json";
 
-type Circumstances = NotAPackage | InvalidPackageDefinition
+type PackageRoot = {
+    packageJson: PackageJSON
+}
+
+type Circumstances = NotAPackage | InvalidPackageDefinition | PackageRoot
 
 function readPackageJson(appDir: string): string | undefined {
     try {
