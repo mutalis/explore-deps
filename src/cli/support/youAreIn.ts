@@ -18,10 +18,13 @@ import { injectSecretDungeonCrawl } from "./injectSecretDungeonCrawl";
 // - make it report the difference in versions?
 // - recognize links and remark on warp portal? (sounds hard)
 // - make it tell the story of the resolution, based on the paths? (also hard)
+// - add a goBack option
 
 const readFile = promisify(fs.readFile);
 
-export async function youAreIn(appDir: string) {
+type Room = PackageRoot & { crawl: NodeModuleResolutionExposed };
+
+export async function youAreIn(appDir: string, past: Room[]) {
 
     const circumstances = determineCircumstances(appDir);
     outputDebug("Hello from " + appDir);
@@ -33,25 +36,45 @@ export async function youAreIn(appDir: string) {
         outputDoom(`A rat bites your foot! The package.json is invalid in ${appDir}`);
         return;
     } else {
-        outputCurrentState(`You are in "${circumstances.packageJson.name}". It appears to be version ${circumstances.packageJson.version}.`)
-        return timeToAct({ ...circumstances, crawl: await injectSecretDungeonCrawl(appDir) });
+        return timeToAct(
+            { ...circumstances, crawl: await injectSecretDungeonCrawl(appDir) }, past);
     }
 }
 
-async function timeToAct(p: PackageRoot & { crawl: NodeModuleResolutionExposed }): Promise<void> {
-    const answers = await requestNextAction(p);
+async function timeToAct(room: Room, past: Room[]): Promise<void> {
+    outputCurrentState(`You are in "${room.packageJson.name}". It appears to be version ${room.packageJson.version}.`)
+
+    const answers = await requestNextAction(room, past);
     outputDebug(`You have chosen: ${answers.action}`)
     switch (answers.action) {
         case "exit":
             return;
+        case "back":
+            return youAreIn((past.pop() as Room).appDir, past);
         case "doors":
             output(`You have examined all the doors before you, and chosen: ${answers.door}`);
-            const otherSide = findLibraryRoot(answers.door, p.crawl);
+            const otherSide = findLibraryRoot(answers.door, room.crawl);
             if (itsaTrap(otherSide)) {
-                outputDoom(chalk.red("It's a trap! ") + otherSide.details || otherSide.error.message)
-                return youAreIn(p.appDir);
+                outputDoom(chalk.red("It's a trap! ") + otherSide.details || otherSide.error.message);
+                return youAreIn(room.appDir, past);
             }
-            return youAreIn(otherSide);
+            output(describeMove(room.appDir, otherSide));
+            past.push(room);
+            return youAreIn(otherSide, past);
+    }
+}
+
+function describeMove(fromDir: string, toDir: string): string {
+    const relativeForward = path.relative(fromDir, toDir);
+    const relativeBackward = path.relative(toDir, fromDir);
+    const upSteps = relativeBackward.split("node_modules").length - 1;
+    const downSteps = relativeForward.split("node_modules").length - 1;
+    if (upSteps > 0) {
+        return `You go up ${upSteps} stairs and down ${downSteps}.`
+    } else if (downSteps > 0) {
+        return `You go down ${downSteps} stairs.` // should always be 1.
+    } else {
+        return `You do through the door.`;
     }
 }
 
@@ -79,11 +102,11 @@ function findLibraryRoot(lib: string, crawl: NodeModuleResolutionExposed): strin
     return dir;
 }
 
-type NextAction = "exit" | "doors";
+type NextAction = "exit" | "doors" | "back";
 
-type NextActionAnswers = { action: "exit" } | { action: "doors", door: string }
+type NextActionAnswers = { action: "exit" | "back" } | { action: "doors", door: string }
 
-const ActionChoices: inquirer.objects.ChoiceOption[] = [
+const AlwaysChoices: inquirer.objects.ChoiceOption[] = [
     {
         name: "Look for doors",
         value: "doors",
@@ -96,12 +119,25 @@ const ActionChoices: inquirer.objects.ChoiceOption[] = [
     },
 ]
 
-async function requestNextAction(p: PackageRoot): Promise<NextActionAnswers> {
+function actionChoices(past: Room[]) {
+    if (past.length > 0) {
+        const goBack: inquirer.objects.ChoiceOption = {
+            name: "Go back to " + past[0].packageJson.name,
+            value: "back",
+            key: "b",
+        };
+        return AlwaysChoices.concat([goBack]);
+    } else {
+        return AlwaysChoices;
+    }
+}
+
+async function requestNextAction(p: PackageRoot, past: Room[]): Promise<NextActionAnswers> {
     const question: inquirer.Question<NextActionAnswers> = {
         name: "action",
         type: "list",
         message: "What would you like to do?",
-        choices: ActionChoices
+        choices: actionChoices(past)
     };
     const response = await inquirer.prompt<NextActionAnswers>([question, chooseDoor(p)])
     return response;
