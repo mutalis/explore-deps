@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import boxen from "boxen";
 
-export function debug(str: string) {
+export function outputDebug(str: string) {
     console.log("  " + chalk.gray(str));
 }
 

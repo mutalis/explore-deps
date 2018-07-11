@@ -29,7 +29,7 @@ export const Crawl: NodeModuleResolutionExposed = {
     },
 
     locateModule(lib: string) {
-        console.log("SDC: resolving " + lib + " in " + __filename)
+        // console.log("SDC: resolving " + lib + " in " + __filename)
         try {
             return require.resolve(lib);
         } catch (error) {

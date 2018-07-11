@@ -2,12 +2,13 @@ import * as fs from "fs";
 import * as path from "path";
 import chalk from "chalk";
 import * as inquirer from "inquirer";
-import * as _ from "lodash";
+import _ from "lodash";
 
 import { PackageJSON, DependencyMap } from "package-json";
-import { outputCurrentState, output, outputDoom, debug } from "./output";
+import { outputCurrentState, output, outputDoom, outputDebug } from "./output";
 import { promisify } from "util";
 import { Crawl as LocalCrawl, NodeModuleResolutionExposed, isModuleResolutionError } from "./SecretDungeonCrawl";
+import { injectSecretDungeonCrawl } from "./injectSecretDungeonCrawl";
 
 // want to: 
 // - make it find roots of packages, because it fails when it goes into a lib
@@ -15,44 +16,31 @@ import { Crawl as LocalCrawl, NodeModuleResolutionExposed, isModuleResolutionErr
 // - make it "check GPS" to tell you what dir it's in
 // - make it report how many stairs you went up or down
 // - make it report the difference in versions?
+// - recognize links and remark on warp portal? (sounds hard)
+// - make it tell the story of the resolution, based on the paths? (also hard)
 
 const readFile = promisify(fs.readFile);
-const writeFile = promisify(fs.writeFile);
-
-const secretDungeonCrawlModuleContent = fs.readFileSync(LocalCrawl.filename, { encoding: "utf8" });
 
 export async function youAreIn(appDir: string) {
 
     const circumstances = determineCircumstances(appDir);
-    debug("Hello from " + appDir);
+    outputDebug("Hello from " + appDir);
 
     if (circumstances === "not a package") {
         outputDoom(`You are in ${appDir}.\nIt is completely dark in here.\nWhat even is this place?? `);
+        return;
     } else if (circumstances === "invalid package json") {
         outputDoom(`A rat bites your foot! The package.json is invalid in ${appDir}`);
+        return;
     } else {
         outputCurrentState(`You are in "${circumstances.packageJson.name}". It appears to be version ${circumstances.packageJson.version}.`)
         return timeToAct({ ...circumstances, crawl: await injectSecretDungeonCrawl(appDir) });
     }
 }
 
-async function injectSecretDungeonCrawl(appDir: string): Promise<NodeModuleResolutionExposed> {
-    // write the secret crawler to the directory of interest
-    const destinationPath: string = path.join(appDir, path.basename(LocalCrawl.filename));
-    debug("writing to: " + destinationPath);
-    await writeFile(destinationPath, secretDungeonCrawlModuleContent, { encoding: "utf8" });
-
-    // now load it as a module
-    const relativePath = "./" + path.relative(__dirname, path.join(appDir, "SecretDungeonCrawl.js"));
-    var sdc = require(relativePath);
-
-    return sdc.Crawl;
-}
-
-
 async function timeToAct(p: PackageRoot & { crawl: NodeModuleResolutionExposed }): Promise<void> {
     const answers = await requestNextAction(p);
-    debug(`You have chosen: ${answers.action}`)
+    outputDebug(`You have chosen: ${answers.action}`)
     switch (answers.action) {
         case "exit":
             return;
@@ -86,7 +74,7 @@ function findLibraryRoot(lib: string, crawl: NodeModuleResolutionExposed): strin
             `${error.message}\nfrom ${error.filename}\nPaths searched: ${error.paths.join("\n")}` : undefined;
         return { error, details };
     }
-    debug(`Resolved ${lib} to ${whereIsIt}`);
+    outputDebug(`Resolved ${lib} to ${whereIsIt}`);
     const dir = path.dirname(whereIsIt);
     return dir;
 }
