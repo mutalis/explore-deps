@@ -18,7 +18,6 @@ import { injectSecretDungeonCrawl } from "./injectSecretDungeonCrawl";
 // - make it report the difference in versions?
 // - recognize links and remark on warp portal? (sounds hard)
 // - make it tell the story of the resolution, based on the paths? (also hard)
-// - add a goBack option
 
 const readFile = promisify(fs.readFile);
 
@@ -51,6 +50,8 @@ async function timeToAct(room: Room, past: Room[]): Promise<void> {
             return;
         case "back":
             return youAreIn((past.pop() as Room).appDir, past);
+        case "teleport":
+            return tryToTeleport(room, past, answers.destination);
         case "doors":
             output(`You have examined all the doors before you, and chosen: ${answers.door}`);
             const otherSide = findLibraryRoot(answers.door, room.crawl);
@@ -64,17 +65,41 @@ async function timeToAct(room: Room, past: Room[]): Promise<void> {
     }
 }
 
-function describeMove(fromDir: string, toDir: string): string {
+function tryToTeleport(room: Room, past: Room[], destination: string) {
+    output(`You want to go to: ${destination}`);
+    const otherSide = findLibraryRoot(destination, room.crawl);
+    if (itsaTrap(otherSide)) {
+        outputDoom(chalk.yellow("Your teleport fails."));
+        return youAreIn(room.appDir, past);
+    }
+    output("Magic! " + describeMove(room.appDir, otherSide));
+    past.push(room);
+    return youAreIn(otherSide, past);
+}
+
+function goThroughDoor(room: Room, past: Room[], destination: string) {
+    output(`You have examined all the doors before you, and chosen: ${destination}`);
+    const otherSide = findLibraryRoot(destination, room.crawl);
+    if (itsaTrap(otherSide)) {
+        outputDoom(chalk.red("It's a trap! ") + otherSide.details || otherSide.error.message);
+        return youAreIn(room.appDir, past);
+    }
+    output("You go " + describeMove(room.appDir, otherSide));
+    past.push(room);
+    return youAreIn(otherSide, past);
+}
+
+export function describeMove(fromDir: string, toDir: string): string {
     const relativeForward = path.relative(fromDir, toDir);
     const relativeBackward = path.relative(toDir, fromDir);
     const upSteps = relativeBackward.split("node_modules").length - 1;
     const downSteps = relativeForward.split("node_modules").length - 1;
     if (upSteps > 0) {
-        return `You go up ${upSteps} stairs and down ${downSteps}.`
+        return `up ${upSteps} stairs and down ${downSteps}.`
     } else if (downSteps > 0) {
-        return `You go down ${downSteps} stairs.` // should always be 1.
+        return `down ${downSteps} stair.` // should always be 1.
     } else {
-        return `You do through the door.`;
+        return `right through.`;
     }
 }
 
@@ -102,9 +127,16 @@ function findLibraryRoot(lib: string, crawl: NodeModuleResolutionExposed): strin
     return dir;
 }
 
-type NextAction = "exit" | "doors" | "back";
+type NextAction = "exit" | "doors" | "back" | "teleport";
 
-type NextActionAnswers = { action: "exit" | "back" } | { action: "doors", door: string }
+type NextActionAnswers = { action: "exit" | "back" } |
+{
+    action: "doors", door: string
+} |
+{
+    action: "teleport",
+    destination: string,
+}
 
 const AlwaysChoices: inquirer.objects.ChoiceOption[] = [
     {
@@ -117,6 +149,11 @@ const AlwaysChoices: inquirer.objects.ChoiceOption[] = [
         value: "exit",
         key: "e",
     },
+    {
+        name: "Teleport",
+        value: "teleport",
+        key: "t",
+    }
 ]
 
 function actionChoices(past: Room[]) {
@@ -139,7 +176,7 @@ async function requestNextAction(p: PackageRoot, past: Room[]): Promise<NextActi
         message: "What would you like to do?",
         choices: actionChoices(past)
     };
-    const response = await inquirer.prompt<NextActionAnswers>([question, chooseDoor(p)])
+    const response = await inquirer.prompt<NextActionAnswers>([question, chooseDoor(p), chooseTeleport()])
     return response;
 }
 
@@ -166,6 +203,15 @@ function chooseDoor(p: PackageRoot): inquirer.Question<NextActionAnswers> {
         message: `There are ${listOfDependencies.length} doors. Choose one to enter: `,
         choices: listOfDependencies.concat([new inquirer.Separator()]),
         when: (a) => a.action === "doors",
+    }
+}
+
+function chooseTeleport(): inquirer.Question<NextActionAnswers> {
+    return {
+        name: "destination",
+        type: "input",
+        message: `Enter a library to teleport to: `,
+        when: (a) => a.action === "teleport",
     }
 }
 
