@@ -1,13 +1,20 @@
-
 import * as fs from "fs";
 import * as path from "path";
 import chalk from "chalk";
 import * as inquirer from "inquirer";
+import * as _ from "lodash";
 
-import { PackageJSON } from "package-json";
+import { PackageJSON, DependencyMap } from "package-json";
 import { outputCurrentState, output, outputDoom, debug } from "./output";
 import { promisify } from "util";
-import { Crawl as LocalCrawl, NodeModuleResolutionExposed } from "./SecretDungeonCrawl";
+import { Crawl as LocalCrawl, NodeModuleResolutionExposed, isModuleResolutionError } from "./SecretDungeonCrawl";
+
+// want to: 
+// - make it find roots of packages, because it fails when it goes into a lib
+// - make it guess why it couldn't resolve a dev dependency
+// - make it "check GPS" to tell you what dir it's in
+// - make it report how many stairs you went up or down
+// - make it report the difference in versions?
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -20,9 +27,9 @@ export async function youAreIn(appDir: string) {
     debug("Hello from " + appDir);
 
     if (circumstances === "not a package") {
-        output(`You are in ${appDir}. It is completely dark in here. What even is this place?? `);
+        outputDoom(`You are in ${appDir}.\nIt is completely dark in here.\nWhat even is this place?? `);
     } else if (circumstances === "invalid package json") {
-        output(`A rat bites your foot! The package.json is invalid in ${appDir}`);
+        outputDoom(`A rat bites your foot! The package.json is invalid in ${appDir}`);
     } else {
         outputCurrentState(`You are in "${circumstances.packageJson.name}". It appears to be version ${circumstances.packageJson.version}.`)
         return timeToAct({ ...circumstances, crawl: await injectSecretDungeonCrawl(appDir) });
@@ -45,7 +52,7 @@ async function injectSecretDungeonCrawl(appDir: string): Promise<NodeModuleResol
 
 async function timeToAct(p: PackageRoot & { crawl: NodeModuleResolutionExposed }): Promise<void> {
     const answers = await requestNextAction(p);
-    output(`You have chosen: ${answers.action}`)
+    debug(`You have chosen: ${answers.action}`)
     switch (answers.action) {
         case "exit":
             return;
@@ -53,7 +60,7 @@ async function timeToAct(p: PackageRoot & { crawl: NodeModuleResolutionExposed }
             output(`You have examined all the doors before you, and chosen: ${answers.door}`);
             const otherSide = findLibraryRoot(answers.door, p.crawl);
             if (itsaTrap(otherSide)) {
-                outputDoom(chalk.red("It's a trap! ") + otherSide.error.message)
+                outputDoom(chalk.red("It's a trap! ") + otherSide.details || otherSide.error.message)
                 return youAreIn(p.appDir);
             }
             return youAreIn(otherSide);
@@ -61,7 +68,8 @@ async function timeToAct(p: PackageRoot & { crawl: NodeModuleResolutionExposed }
 }
 
 type Trap = {
-    error: Error
+    error: Error,
+    details?: string
 }
 
 function itsaTrap(t: Trap | string): t is Trap {
@@ -74,7 +82,9 @@ function findLibraryRoot(lib: string, crawl: NodeModuleResolutionExposed): strin
     try {
         whereIsIt = crawl.locateModule(lib);
     } catch (error) {
-        return { error };
+        const details = isModuleResolutionError(error) ?
+            `${error.message}\nfrom ${error.filename}\nPaths searched: ${error.paths.join("\n")}` : undefined;
+        return { error, details };
     }
     debug(`Resolved ${lib} to ${whereIsIt}`);
     const dir = path.dirname(whereIsIt);
@@ -109,10 +119,22 @@ async function requestNextAction(p: PackageRoot): Promise<NextActionAnswers> {
     return response;
 }
 
+function choicesFromDependencyObject(optionalDeps: DependencyMap | undefined,
+    colorFn: (txt: string) => string): inquirer.objects.ChoiceOption[] {
+    const deps = optionalDeps || {};
+    return Object.keys(deps).map(d => ({
+        value: d,
+        name: colorFn(d + ":" + deps[d])
+    }));
+}
+
 function chooseDoor(p: PackageRoot): inquirer.Question<NextActionAnswers> {
-    const listOfDependencies: inquirer.ChoiceType[] = Object.keys(p.packageJson.dependencies || {})
-        .concat(Object.keys(p.packageJson.devDependencies || {}).map(devdep => chalk.gray(devdep)))
-        .sort()
+    const allDependencies = choicesFromDependencyObject(p.packageJson.dependencies, chalk.white)
+        .concat(choicesFromDependencyObject(p.packageJson.devDependencies, chalk.grey))
+        .concat(choicesFromDependencyObject(p.packageJson.peerDependencies, chalk.magenta));
+    const listOfDependencies = _.sortBy(
+        allDependencies,
+        ct => ct.value as string)
     //  debug("The dependencies are: " + listOfDependencies.join(" & "))
     return {
         name: "door",

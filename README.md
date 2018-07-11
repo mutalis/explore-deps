@@ -26,7 +26,7 @@ Cover:
 -   interfaces
 -   classes and the tricky bit about private fields
 -   vscode: type hints, useful error messages
-
+-   function types and that stupid thing where you have to supply a name
 
 ## Section 2: The runtime. Node and the many dialects of JavaScript
 

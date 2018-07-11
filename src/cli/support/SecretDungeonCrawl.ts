@@ -3,16 +3,22 @@
  * This must not import anything unglobal
  */
 
-export interface ModuleResolutionTrap {
-    error: Error;
-    paths: string[];
-    filename: string;
+export class ModuleResolutionError extends Error {
+    public readonly kind = "ModuleResolutionError"
+    constructor(public cause: Error, public paths: string[], public filename: string) {
+        super(cause.message);
+    }
+}
+
+export function isModuleResolutionError(e: Error): e is ModuleResolutionError {
+    const maybe = e as ModuleResolutionError;
+    return maybe.kind === "ModuleResolutionError";
 }
 
 export interface NodeModuleResolutionExposed {
     resolvePaths(resolveMe: string): string[] | null;
 
-    locateModule(lib: string): string | ModuleResolutionTrap;
+    locateModule(lib: string): string;
 
     filename: string;
 }
@@ -27,11 +33,7 @@ export const Crawl: NodeModuleResolutionExposed = {
         try {
             return require.resolve(lib);
         } catch (error) {
-            return {
-                error,
-                paths: require.resolve.paths(lib) || [],
-                filename: __filename,
-            }
+            throw new ModuleResolutionError(error, require.resolve.paths(lib) || [], __filename);
         }
     },
 
