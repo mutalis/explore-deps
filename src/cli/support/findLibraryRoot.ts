@@ -1,6 +1,7 @@
 import { NodeModuleResolutionExposed, isModuleResolutionError } from "./SecretDungeonCrawl";
 import { outputDebug } from "./output";
 import * as path from "path";
+import * as fs from "fs";
 
 export type Trap = {
     error: Error,
@@ -22,6 +23,26 @@ export function findLibraryRoot(lib: string, crawl: NodeModuleResolutionExposed)
         return { error, details };
     }
     outputDebug(`Resolved ${lib} to ${whereIsIt}`);
-    const dir = path.dirname(whereIsIt);
-    return dir;
+    return firstParentDirectoryWithAPackageJson(path.dirname(whereIsIt));
+}
+
+function firstParentDirectoryWithAPackageJson(dir: string, origDir: string = dir): string | Trap {
+    try {
+        const stat = fs.statSync(path.join(dir, "package.json"));
+        if (stat.isFile()) {
+            return dir;
+        }
+    } catch (e) {
+        // fine, it doesn't exist
+    }
+    if (isRoot(dir)) {
+        return {
+            error: new Error("No package.json anywhere above " + origDir)
+        }
+    }
+    return firstParentDirectoryWithAPackageJson(path.dirname(dir), origDir);
+}
+
+function isRoot(dir: string) {
+    path.dirname(dir) === dir;
 }
