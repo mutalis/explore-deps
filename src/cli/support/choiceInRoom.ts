@@ -10,9 +10,9 @@ export type Room = {
     appDir: string;
 };
 
-type NextAction = "exit" | "doors" | "back" | "teleport" | "gps";
+type NextAction = "exit" | "doors" | "back" | "teleport" | "gps" | "look";
 
-export type NextActionAnswers = { action: "exit" | "back" | "gps" } |
+export type NextActionAnswers = { action: "exit" | "back" | "gps" | "look" } |
 {
     action: "doors", door: string
 } |
@@ -44,6 +44,12 @@ const TeleportChoice: ChoiceInRoom = {
     key: "t",
 }
 
+const LookAround: ChoiceInRoom = {
+    name: "Look around",
+    value: "look",
+    key: "l",
+}
+
 const CheckGPS: ChoiceInRoom = {
     name: "Check GPS",
     value: "gps",
@@ -57,9 +63,9 @@ function actionChoices(past: Room[]) {
             value: "back",
             key: "b",
         };
-        return [LookForDoorsChoice, CheckGPS, goBack, TeleportChoice, ExitChoice];
+        return [LookForDoorsChoice, LookAround, CheckGPS, goBack, TeleportChoice, ExitChoice];
     } else {
-        return [LookForDoorsChoice, CheckGPS, TeleportChoice, ExitChoice];
+        return [LookForDoorsChoice, LookAround, CheckGPS, TeleportChoice, ExitChoice];
     }
 }
 
