@@ -75,7 +75,7 @@ export async function requestNextAction(p: Room, past: Room[]): Promise<NextActi
 }
 
 function choicesFromDependencyObject(optionalDeps: DependencyMap | undefined,
-                                     colorFn: (txt: string) => string): inquirer.objects.ChoiceOption[] {
+    colorFn: (txt: string) => string): inquirer.objects.ChoiceOption[] {
     const deps = optionalDeps || {};
     return Object.keys(deps).map((d) => ({
         value: d,
@@ -91,11 +91,14 @@ function chooseDoor(p: Room): inquirer.Question<NextActionAnswers> {
         allDependencies,
         (ct) => ct.value as string);
     //  debug("The dependencies are: " + listOfDependencies.join(" & "))
+    const choices = listOfDependencies.length === 0 ?
+        [{ name: "You see light ahead...", value: "VICTORY" }] :
+        listOfDependencies.concat([new inquirer.Separator()]);
     return {
         name: "door",
         type: "list",
         message: `There are ${listOfDependencies.length} doors. Choose one to enter: `,
-        choices: listOfDependencies.concat([new inquirer.Separator()]),
+        choices,
         when: (a) => a.action === "doors",
     };
 }

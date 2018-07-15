@@ -13,8 +13,7 @@ import { findLibraryRoot } from "./findLibraryRoot";
 import { output, outputCurrentState, outputDebug, outputDoom } from "./output";
 import { itsaTrap, Trap } from "./Trap";
 
-// want to:
-// - add "look around"
+// want to: 
 // - make it report the difference in versions?
 // - make it guess why it couldn't resolve a dev dependency
 // - recognize links and remark on warp portal? (sounds hard)
@@ -99,6 +98,10 @@ async function tryToTeleport(room: Room, past: Room[], destination: string): Act
 }
 
 async function goThroughDoor(room: Room, past: Room[], door: string) {
+    if (door === "VICTORY") {
+        past.push(room);
+        return win(past);
+    }
     output(`You have examined all the doors before you, and chosen: ${door}`);
     const otherSide = findLibraryRoot(door, room.crawl);
     if (itsaTrap(otherSide)) {
@@ -116,4 +119,9 @@ async function goThroughDoor(room: Room, past: Room[], door: string) {
 async function omg(trap: Trap, room: Room, past: Room[]): ActionHappened {
     outputDoom(chalk.red("It's a trap! ") + trap.details);
     return timeToAct(room, past);
+}
+
+async function win(past: Room[]): ActionHappened {
+    output(boxen("YOU WIN!", { borderColor: "magenta", padding: 2 }))
+    return;
 }
