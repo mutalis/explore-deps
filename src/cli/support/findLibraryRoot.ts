@@ -1,11 +1,11 @@
-import { NodeModuleResolutionExposed, isModuleResolutionError } from "./SecretDungeonCrawl";
-import { outputDebug } from "./output";
-import * as path from "path";
 import * as fs from "fs";
+import * as path from "path";
+import { outputDebug } from "./output";
+import { isModuleResolutionError, NodeModuleResolutionExposed } from "./SecretDungeonCrawl";
 
-export type Trap = {
-    error: Error,
-    details?: string
+export interface Trap {
+    error: Error;
+    details?: string;
 }
 
 export function itsaTrap(t: Trap | string): t is Trap {
@@ -37,8 +37,8 @@ function firstParentDirectoryWithAPackageJson(dir: string, origDir: string = dir
     }
     if (isRoot(dir)) {
         return {
-            error: new Error("No package.json anywhere above " + origDir)
-        }
+            error: new Error("No package.json anywhere above " + origDir),
+        };
     }
     return firstParentDirectoryWithAPackageJson(path.dirname(dir), origDir);
 }

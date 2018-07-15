@@ -1,20 +1,20 @@
-import * as fs from "fs";
-import * as path from "path";
+import boxen from "boxen";
 import chalk from "chalk";
+import * as fs from "fs";
 import * as inquirer from "inquirer";
 import _ from "lodash";
-import boxen from "boxen";
+import * as path from "path";
 
-import { PackageJSON, DependencyMap } from "package-json";
-import { outputCurrentState, output, outputDoom, outputDebug } from "./output";
+import { DependencyMap, PackageJSON } from "package-json";
 import { promisify } from "util";
-import { Crawl as LocalCrawl, NodeModuleResolutionExposed, isModuleResolutionError } from "./SecretDungeonCrawl";
-import { injectSecretDungeonCrawl } from "./injectSecretDungeonCrawl";
+import { requestNextAction, Room } from "./choiceInRoom";
 import { describeMove } from "./describeMove";
 import { findLibraryRoot, itsaTrap } from "./findLibraryRoot";
-import { Room, requestNextAction } from "./choiceInRoom";
+import { injectSecretDungeonCrawl } from "./injectSecretDungeonCrawl";
+import { output, outputCurrentState, outputDebug, outputDoom } from "./output";
+import { Crawl as LocalCrawl, isModuleResolutionError, NodeModuleResolutionExposed } from "./SecretDungeonCrawl";
 
-// want to: 
+// want to:
 // - add "look around"
 // - make it report the difference in versions?
 // - make it guess why it couldn't resolve a dev dependency
@@ -23,7 +23,6 @@ import { Room, requestNextAction } from "./choiceInRoom";
 // - if I delete the file after I load it, does it still work?
 
 const readFile = promisify(fs.readFile);
-
 
 export async function youAreIn(appDir: string, past: Room[]) {
 
@@ -43,10 +42,10 @@ export async function youAreIn(appDir: string, past: Room[]) {
 }
 
 async function timeToAct(room: Room, past: Room[]): Promise<void> {
-    outputCurrentState(`You are in "${room.packageJson.name}". It appears to be version ${room.packageJson.version}.`)
+    outputCurrentState(`You are in "${room.packageJson.name}". It appears to be version ${room.packageJson.version}.`);
 
     const answers = await requestNextAction(room, past);
-    outputDebug(`You have chosen: ${answers.action}`)
+    outputDebug(`You have chosen: ${answers.action}`);
     switch (answers.action) {
         case "exit":
             return;
@@ -76,8 +75,8 @@ repo: ${_.get(pj, "repository.url")}`;
 
 function checkGPS(room: Room) {
     output(chalk.yellow("You are in " + room.appDir));
-    const possibleDirs = (room.crawl.resolvePaths("anything") || []).map(greyNonexistent)
-    output("From here, it is possible to reach rooms within:\n" + possibleDirs.join("\n"))
+    const possibleDirs = (room.crawl.resolvePaths("anything") || []).map(greyNonexistent);
+    output("From here, it is possible to reach rooms within:\n" + possibleDirs.join("\n"));
 }
 
 function greyNonexistent(d: string) {
@@ -122,9 +121,8 @@ function goThroughDoor(room: Room, past: Room[], door: string) {
     return youAreIn(otherSide, past);
 }
 
-
 function determineCircumstances(appDir: string): Circumstances {
-    const pjString: string | undefined = readPackageJson(appDir)
+    const pjString: string | undefined = readPackageJson(appDir);
     if (!pjString) {
         return "not a package";
     }
@@ -134,23 +132,23 @@ function determineCircumstances(appDir: string): Circumstances {
     }
     return {
         packageJson: pj,
-        appDir
-    }
+        appDir,
+    };
 }
 
 type NotAPackage = "not a package";
 type InvalidPackageDefinition = "invalid package json";
 
-type PackageRoot = {
+interface PackageRoot {
     packageJson: PackageJSON;
     appDir: string;
 }
 
-type Circumstances = NotAPackage | InvalidPackageDefinition | PackageRoot
+type Circumstances = NotAPackage | InvalidPackageDefinition | PackageRoot;
 
 function readPackageJson(appDir: string): string | undefined {
     try {
-        return fs.readFileSync(path.join(appDir, "package.json"), { encoding: "utf8" })
+        return fs.readFileSync(path.join(appDir, "package.json"), { encoding: "utf8" });
     } catch {
         return;
     }

@@ -44,6 +44,7 @@ Cover:
 -   declaring dependencies. 3 types
 -   what npm does and how to decipher what it does
 -   output: outDir or outFile (amd or system module output only)
+-   npm .bin
 
 ## Section 4: Leveraging TypeScript to find bugs
 

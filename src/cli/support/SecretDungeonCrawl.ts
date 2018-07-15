@@ -4,7 +4,7 @@
  */
 
 export class ModuleResolutionError extends Error {
-    public readonly kind = "ModuleResolutionError"
+    public readonly kind = "ModuleResolutionError";
     constructor(public cause: Error, public paths: string[], public filename: string) {
         super(cause.message);
     }
@@ -38,4 +38,4 @@ export const Crawl: NodeModuleResolutionExposed = {
     },
 
     filename: __filename,
-}
+};

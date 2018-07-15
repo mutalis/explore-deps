@@ -1,13 +1,11 @@
 
 import * as fs from "fs";
-import { Crawl as LocalCrawl, NodeModuleResolutionExposed, isModuleResolutionError } from "./SecretDungeonCrawl";
+import * as path from "path";
 import { promisify } from "util";
 import { outputDebug } from "./output";
-import * as path from "path";
-
+import { Crawl as LocalCrawl, isModuleResolutionError, NodeModuleResolutionExposed } from "./SecretDungeonCrawl";
 
 const secretDungeonCrawlModuleContent = fs.readFileSync(LocalCrawl.filename, { encoding: "utf8" });
-
 
 const writeFile = promisify(fs.writeFile);
 
@@ -19,8 +17,8 @@ export async function injectSecretDungeonCrawl(appDir: string): Promise<NodeModu
 
     // now load it as a module
     const relativePath = "./" + path.relative(__dirname, path.join(appDir, "SecretDungeonCrawl.js"));
-    var sdc = require(relativePath);
-    // now delete it 
+    const sdc = require(relativePath);
+    // now delete it
     await (promisify(fs.unlink))(destinationPath);
 
     return sdc.Crawl;

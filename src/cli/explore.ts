@@ -2,8 +2,8 @@
 
 import { youAreIn } from "./support/youAreIn";
 
-youAreIn(process.cwd(), []).then(x => {
+youAreIn(process.cwd(), []).then((x) => {
 
-    console.log("The end.")
+    console.log("The end.");
 
 });

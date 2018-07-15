@@ -1,32 +1,31 @@
-import * as inquirer from "inquirer";
 import chalk from "chalk";
-import { NodeModuleResolutionExposed } from "./SecretDungeonCrawl";
-import { PackageJSON, DependencyMap } from "package-json";
+import * as inquirer from "inquirer";
 import * as _ from "lodash";
+import { DependencyMap, PackageJSON } from "package-json";
+import { NodeModuleResolutionExposed } from "./SecretDungeonCrawl";
 
-export type Room = {
+export interface Room {
     crawl: NodeModuleResolutionExposed;
     packageJson: PackageJSON;
     appDir: string;
-};
+}
 
 type NextAction = "exit" | "doors" | "back" | "teleport" | "gps" | "look";
 
 export type NextActionAnswers = { action: "exit" | "back" | "gps" | "look" } |
 {
-    action: "doors", door: string
+    action: "doors", door: string,
 } |
 {
     action: "teleport",
     destination: string,
-}
+};
 
 interface ChoiceInRoom extends inquirer.objects.ChoiceOption {
-    value: NextAction,
+    value: NextAction;
 }
 
-const ExitChoice: ChoiceInRoom =
-{
+const ExitChoice: ChoiceInRoom = {
     name: "Leave",
     value: "exit",
     key: "e",
@@ -35,26 +34,26 @@ const ExitChoice: ChoiceInRoom =
 const LookForDoorsChoice: ChoiceInRoom = {
     name: "Look for doors",
     value: "doors",
-    key: "d"
-}
+    key: "d",
+};
 
 const TeleportChoice: ChoiceInRoom = {
     name: "Teleport",
     value: "teleport",
     key: "t",
-}
+};
 
 const LookAround: ChoiceInRoom = {
     name: "Look around",
     value: "look",
     key: "l",
-}
+};
 
 const CheckGPS: ChoiceInRoom = {
     name: "Check GPS",
     value: "gps",
     key: "g",
-}
+};
 
 function actionChoices(past: Room[]) {
     if (past.length > 0) {
@@ -74,18 +73,18 @@ export async function requestNextAction(p: Room, past: Room[]): Promise<NextActi
         name: "action",
         type: "list",
         message: "What would you like to do?",
-        choices: actionChoices(past)
+        choices: actionChoices(past),
     };
-    const response = await inquirer.prompt<NextActionAnswers>([question, chooseDoor(p), chooseTeleport()])
+    const response = await inquirer.prompt<NextActionAnswers>([question, chooseDoor(p), chooseTeleport()]);
     return response;
 }
 
 function choicesFromDependencyObject(optionalDeps: DependencyMap | undefined,
-    colorFn: (txt: string) => string): inquirer.objects.ChoiceOption[] {
+                                     colorFn: (txt: string) => string): inquirer.objects.ChoiceOption[] {
     const deps = optionalDeps || {};
-    return Object.keys(deps).map(d => ({
+    return Object.keys(deps).map((d) => ({
         value: d,
-        name: colorFn(d + ":" + deps[d])
+        name: colorFn(d + ":" + deps[d]),
     }));
 }
 
@@ -95,7 +94,7 @@ function chooseDoor(p: Room): inquirer.Question<NextActionAnswers> {
         .concat(choicesFromDependencyObject(p.packageJson.peerDependencies, chalk.magenta));
     const listOfDependencies = _.sortBy(
         allDependencies,
-        ct => ct.value as string)
+        (ct) => ct.value as string);
     //  debug("The dependencies are: " + listOfDependencies.join(" & "))
     return {
         name: "door",
@@ -103,7 +102,7 @@ function chooseDoor(p: Room): inquirer.Question<NextActionAnswers> {
         message: `There are ${listOfDependencies.length} doors. Choose one to enter: `,
         choices: listOfDependencies.concat([new inquirer.Separator()]),
         when: (a) => a.action === "doors",
-    }
+    };
 }
 
 function chooseTeleport(): inquirer.Question<NextActionAnswers> {
@@ -112,5 +111,5 @@ function chooseTeleport(): inquirer.Question<NextActionAnswers> {
         type: "input",
         message: `Enter a library to teleport to: `,
         when: (a) => a.action === "teleport",
-    }
+    };
 }

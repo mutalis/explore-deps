@@ -2,7 +2,7 @@ import * as path from "path";
 import { outputDebug } from "./output";
 
 export function describeMove(fromDir: string, toDir: string): string {
-    const destinationName = path.basename(toDir)
+    const destinationName = path.basename(toDir);
     const relativeForward = path.relative(fromDir, toDir);
 
     if (relativeForward.startsWith("node_modules")) { // child
@@ -19,12 +19,12 @@ export function describeMove(fromDir: string, toDir: string): string {
 
     const downwardDirs = relativeForward.replace(/\.\.\//g, "");
     if (downwardDirs.startsWith("node_modules")) { // this is unusual, a node_modules above us that we are not in
-        const directoriesUp = relativeForward.split("../").length - 1
-        return `You climb ${describeQuantity(directoriesUp, "twisted stair")}, then descend into ${destinationName}.`
+        const directoriesUp = relativeForward.split("../").length - 1;
+        return `You climb ${describeQuantity(directoriesUp, "twisted stair")}, then descend into ${destinationName}.`;
     }
 
     if (upSteps > 0) { // dependency is higher in the same node_modules hierarchy
-        return `You climb ${describeQuantity(upSteps, "flight")} of stairs and step into ${destinationName}.`
+        return `You climb ${describeQuantity(upSteps, "flight")} of stairs and step into ${destinationName}.`;
     }
 
     // this is unexpected
