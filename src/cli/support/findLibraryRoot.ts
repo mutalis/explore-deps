@@ -44,5 +44,5 @@ function firstParentDirectoryWithAPackageJson(dir: string, origDir: string = dir
 }
 
 function isRoot(dir: string) {
-    path.dirname(dir) === dir;
+    return path.dirname(dir) === dir;
 }

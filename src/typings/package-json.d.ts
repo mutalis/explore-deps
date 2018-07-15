@@ -1,3 +1,4 @@
+// tslint:disable
 // credit: https://gist.github.com/iainreid820/5c1cc527fe6b5b7dba41fec7fe54bf6e
 // except I took the "I" prefix off the interfaces, and wrapped it in a modules
 

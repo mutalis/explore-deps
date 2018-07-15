@@ -16,11 +16,13 @@ export function isModuleResolutionError(e: Error): e is ModuleResolutionError {
 }
 
 export interface NodeModuleResolutionExposed {
+
+    filename: string;
+
     resolvePaths(resolveMe: string): string[] | null;
 
     locateModule(lib: string): string;
 
-    filename: string;
 }
 
 export const Crawl: NodeModuleResolutionExposed = {

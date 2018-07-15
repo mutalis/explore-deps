@@ -7,7 +7,7 @@
   "scripts": {
     "test": "mocha --require ts-node/register 'test/**/*.ts'",
     "compile": "tsc",
-    "lint": "tslint --fix 'src/**/*.ts' 'test/**/*.ts'",
+    "lint": "tslint --fix --format verbose 'src/**/*.ts' 'test/**/*.ts'",
     "build": "npm-run-all compile lint"
   },
   "bin": {
