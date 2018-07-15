@@ -2,16 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { outputDebug } from "./output";
 import { isModuleResolutionError, NodeModuleResolutionExposed } from "./SecretDungeonCrawl";
-
-export interface Trap {
-    error: Error;
-    details?: string;
-}
-
-export function itsaTrap(t: Trap | string): t is Trap {
-    const maybe = t as Trap;
-    return maybe.error !== undefined;
-}
+import { Trap } from "./Trap";
 
 export function findLibraryRoot(lib: string, crawl: NodeModuleResolutionExposed): string | Trap {
     let whereIsIt;

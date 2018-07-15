@@ -2,13 +2,8 @@ import chalk from "chalk";
 import * as inquirer from "inquirer";
 import * as _ from "lodash";
 import { DependencyMap, PackageJSON } from "package-json";
+import { Room } from "./buildRoom";
 import { NodeModuleResolutionExposed } from "./SecretDungeonCrawl";
-
-export interface Room {
-    crawl: NodeModuleResolutionExposed;
-    packageJson: PackageJSON;
-    appDir: string;
-}
 
 type NextAction = "exit" | "doors" | "back" | "teleport" | "gps" | "look";
 

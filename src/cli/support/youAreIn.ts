@@ -5,14 +5,13 @@ import * as inquirer from "inquirer";
 import _ from "lodash";
 import * as path from "path";
 
-import { DependencyMap, PackageJSON } from "package-json";
 import { promisify } from "util";
-import { requestNextAction, Room } from "./choiceInRoom";
+import { buildRoom, Room } from "./buildRoom";
+import { requestNextAction } from "./choiceInRoom";
 import { describeMove } from "./describeMove";
-import { findLibraryRoot, itsaTrap } from "./findLibraryRoot";
-import { injectSecretDungeonCrawl } from "./injectSecretDungeonCrawl";
+import { findLibraryRoot } from "./findLibraryRoot";
 import { output, outputCurrentState, outputDebug, outputDoom } from "./output";
-import { Crawl as LocalCrawl, isModuleResolutionError, NodeModuleResolutionExposed } from "./SecretDungeonCrawl";
+import { itsaTrap, Trap } from "./Trap";
 
 // want to:
 // - add "look around"
@@ -24,24 +23,10 @@ import { Crawl as LocalCrawl, isModuleResolutionError, NodeModuleResolutionExpos
 
 const readFile = promisify(fs.readFile);
 
-export async function youAreIn(appDir: string, past: Room[]) {
+type ActionHappened = Promise<void>;
 
-    const circumstances = determineCircumstances(appDir);
-    outputDebug("Hello from " + appDir);
+export async function timeToAct(room: Room, past: Room[]): ActionHappened {
 
-    if (circumstances === "not a package") {
-        outputDoom(`You are in ${appDir}.\nIt is completely dark in here.\nWhat even is this place?? `);
-        return;
-    } else if (circumstances === "invalid package json") {
-        outputDoom(`A rat bites your foot! The package.json is invalid in ${appDir}`);
-        return;
-    } else {
-        return timeToAct(
-            { ...circumstances, crawl: await injectSecretDungeonCrawl(appDir) }, past);
-    }
-}
-
-async function timeToAct(room: Room, past: Room[]): Promise<void> {
     outputCurrentState(`You are in "${room.packageJson.name}". It appears to be version ${room.packageJson.version}.`);
 
     const answers = await requestNextAction(room, past);
@@ -50,7 +35,7 @@ async function timeToAct(room: Room, past: Room[]): Promise<void> {
         case "exit":
             return;
         case "back":
-            return youAreIn((past.pop() as Room).appDir, past);
+            return timeToAct((past.pop() as Room), past);
         case "teleport":
             return tryToTeleport(room, past, answers.destination);
         case "look":
@@ -96,68 +81,39 @@ function dirExists(d: string): boolean {
     }
 }
 
-function tryToTeleport(room: Room, past: Room[], destination: string) {
+async function tryToTeleport(room: Room, past: Room[], destination: string): ActionHappened {
     output(`You want to go to: ${destination}`);
     const otherSide = findLibraryRoot(destination, room.crawl);
     if (itsaTrap(otherSide)) {
         outputDoom(chalk.yellow("Your teleport fails."));
         outputDebug(otherSide.details || otherSide.error.message);
-        return youAreIn(room.appDir, past);
+        return timeToAct(room, past);
     }
     output(chalk.cyan("Magic! " + describeMove(room.appDir, otherSide)));
+    const newRoom = await buildRoom(otherSide);
+    if (itsaTrap(newRoom)) {
+        return omg(newRoom, room, past);
+    }
     past.push(room);
-    return youAreIn(otherSide, past);
+    return timeToAct(newRoom, past);
 }
 
-function goThroughDoor(room: Room, past: Room[], door: string) {
+async function goThroughDoor(room: Room, past: Room[], door: string) {
     output(`You have examined all the doors before you, and chosen: ${door}`);
     const otherSide = findLibraryRoot(door, room.crawl);
     if (itsaTrap(otherSide)) {
-        outputDoom(chalk.red("It's a trap! ") + otherSide.error.message);
-        return youAreIn(room.appDir, past);
+        return omg(otherSide, room, past);
     }
     output(chalk.yellow(describeMove(room.appDir, otherSide)));
+    const newRoom = await buildRoom(otherSide);
+    if (itsaTrap(newRoom)) {
+        return omg(newRoom, room, past);
+    }
     past.push(room);
-    return youAreIn(otherSide, past);
+    return timeToAct(newRoom, past);
 }
 
-function determineCircumstances(appDir: string): Circumstances {
-    const pjString = readPackageJson(appDir);
-    if (!pjString) {
-        return "not a package";
-    }
-    const pj = parsePackageJson(pjString);
-    if (pj == null) {
-        return "invalid package json";
-    }
-    return {
-        packageJson: pj,
-        appDir,
-    };
-}
-
-type NotAPackage = "not a package";
-type InvalidPackageDefinition = "invalid package json";
-
-interface PackageRoot {
-    packageJson: PackageJSON;
-    appDir: string;
-}
-
-type Circumstances = NotAPackage | InvalidPackageDefinition | PackageRoot;
-
-function readPackageJson(appDir: string): string | null {
-    try {
-        return fs.readFileSync(path.join(appDir, "package.json"), { encoding: "utf8" });
-    } catch {
-        return null;
-    }
-}
-
-function parsePackageJson(pjContent: string): PackageJSON | null {
-    try {
-        return JSON.parse(pjContent);
-    } catch {
-        return null;
-    }
+async function omg(trap: Trap, room: Room, past: Room[]): ActionHappened {
+    outputDoom(chalk.red("It's a trap! ") + trap.details);
+    return timeToAct(room, past);
 }

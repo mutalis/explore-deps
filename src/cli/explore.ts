@@ -1,10 +1,16 @@
 #!/usr/bin/env ts-node
 
-import { output } from "./support/output";
-import { youAreIn } from "./support/youAreIn";
+import { buildRoom } from "./support/buildRoom";
+import { output, outputDoom } from "./support/output";
+import { itsaTrap } from "./support/Trap";
+import { timeToAct } from "./support/youAreIn";
 
-youAreIn(process.cwd(), []).then((x) => {
-
-    output("The end.");
-
+buildRoom(process.cwd()).then((room) => {
+    if (itsaTrap(room)) {
+        outputDoom("Ouch! " + room.details);
+        return;
+    }
+    return timeToAct(room, []).then(() => {
+        output("The end.");
+    });
 });
