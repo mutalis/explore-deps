@@ -122,12 +122,12 @@ function goThroughDoor(room: Room, past: Room[], door: string) {
 }
 
 function determineCircumstances(appDir: string): Circumstances {
-    const pjString: string | undefined = readPackageJson(appDir);
+    const pjString = readPackageJson(appDir);
     if (!pjString) {
         return "not a package";
     }
     const pj = parsePackageJson(pjString);
-    if (!pj) {
+    if (pj == null) {
         return "invalid package json";
     }
     return {
@@ -146,18 +146,18 @@ interface PackageRoot {
 
 type Circumstances = NotAPackage | InvalidPackageDefinition | PackageRoot;
 
-function readPackageJson(appDir: string): string | undefined {
+function readPackageJson(appDir: string): string | null {
     try {
         return fs.readFileSync(path.join(appDir, "package.json"), { encoding: "utf8" });
     } catch {
-        return;
+        return null;
     }
 }
 
-function parsePackageJson(pjContent: string): PackageJSON | undefined {
+function parsePackageJson(pjContent: string): PackageJSON | null {
     try {
         return JSON.parse(pjContent);
     } catch {
-        return;
+        return null;
     }
 }
