@@ -7,10 +7,10 @@ import * as path from "path";
 
 import { promisify } from "util";
 import { buildRoom, Room } from "./buildRoom";
-import { requestNextAction } from "./requestNextAction";
 import { describeMove } from "./describeMove";
 import { findLibraryRoot } from "./findLibraryRoot";
 import { output, outputCurrentState, outputDebug, outputDoom } from "./output";
+import { requestNextAction } from "./requestNextAction";
 import { itsaTrap, Trap } from "./Trap";
 
 // want to:

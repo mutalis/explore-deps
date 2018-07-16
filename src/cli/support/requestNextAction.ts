@@ -1,11 +1,11 @@
 import chalk from "chalk";
 import * as inquirer from "inquirer";
+import inquirer_autocomplete from "inquirer-autocomplete-prompt";
 import * as _ from "lodash";
 import { DependencyMap } from "package-json";
 import { Room } from "./buildRoom";
-import { outputDebug } from "./output";
 
-inquirer.registerPrompt('autocomplete', require('inquirer-autocomplete-prompt'));
+inquirer.registerPrompt("autocomplete", inquirer_autocomplete);
 
 type NextAction = "exit" | "doors" | "back" | "teleport" | "gps" | "look";
 
@@ -78,18 +78,19 @@ export async function requestNextAction(p: Room, past: Room[]): Promise<NextActi
     return response;
 }
 
-function autocompleteByNameOrKey(choices: ChoiceInRoom[]): (answers: any, input: string) => Promise<inquirer.objects.ChoiceOption[]> {
+function autocompleteByNameOrKey(choices: ChoiceInRoom[]):
+    (answers: any, input: string) => Promise<inquirer.objects.ChoiceOption[]> {
     return async (answersSoFar: Partial<NextActionAnswers>, input: string) =>
         choices
-            .filter(c =>
+            .filter((c) =>
                 input == null ||
                 c.key === input ||
                 c.name.toLowerCase().startsWith(input.toLowerCase()))
-            .map(boldKey)
+            .map(boldKey);
 }
 
 function choicesFromDependencyObject(optionalDeps: DependencyMap | undefined,
-    colorFn: (txt: string) => string): inquirer.objects.ChoiceOption[] {
+                                     colorFn: (txt: string) => string): inquirer.objects.ChoiceOption[] {
     const deps = optionalDeps || {};
     return Object.keys(deps).map((d) => ({
         value: d,
@@ -110,7 +111,7 @@ function chooseDoor(p: Room): inquirer.Question<NextActionAnswers> {
         listOfDependencies.concat([new inquirer.Separator()]);
     const message = listOfDependencies.length === 0 ?
         `You see light ahead...` :
-        `There are ${listOfDependencies.length} doors. Choose one to enter: `
+        `There are ${listOfDependencies.length} doors. Choose one to enter: `;
     return {
         name: "door",
         type: "list",
@@ -141,5 +142,5 @@ function boldKey(c: ChoiceInRoom): ChoiceInRoom {
     return {
         ...c,
         name: boldFirstOccurrence(c.name, c.key),
-    }
+    };
 }
