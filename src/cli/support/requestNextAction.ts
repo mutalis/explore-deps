@@ -1,9 +1,11 @@
 import chalk from "chalk";
 import * as inquirer from "inquirer";
 import * as _ from "lodash";
-import { DependencyMap, PackageJSON } from "package-json";
+import { DependencyMap } from "package-json";
 import { Room } from "./buildRoom";
-import { NodeModuleResolutionExposed } from "./SecretDungeonCrawl";
+import { outputDebug } from "./output";
+
+inquirer.registerPrompt('autocomplete', require('inquirer-autocomplete-prompt'));
 
 type NextAction = "exit" | "doors" | "back" | "teleport" | "gps" | "look";
 
@@ -18,6 +20,8 @@ export type NextActionAnswers = { action: "exit" | "back" | "gps" | "look" } |
 
 interface ChoiceInRoom extends inquirer.objects.ChoiceOption {
     value: NextAction;
+    name: string; // not optional
+    key: string; // not optional
 }
 
 const ExitChoice: ChoiceInRoom = {
@@ -27,7 +31,7 @@ const ExitChoice: ChoiceInRoom = {
 };
 
 const LookForDoorsChoice: ChoiceInRoom = {
-    name: "Look for doors",
+    name: `Look for ${chalk.bold("d")}oors`,
     value: "doors",
     key: "d",
 };
@@ -50,9 +54,9 @@ const CheckGPS: ChoiceInRoom = {
     key: "g",
 };
 
-function actionChoices(past: Room[]) {
+function actionChoices(past: Room[]): ChoiceInRoom[] {
     if (past.length > 0) {
-        const goBack: inquirer.objects.ChoiceOption = {
+        const goBack: ChoiceInRoom = {
             name: "Go back to " + past[past.length - 1].packageJson.name,
             value: "back",
             key: "b",
@@ -66,10 +70,16 @@ function actionChoices(past: Room[]) {
 export async function requestNextAction(p: Room, past: Room[]): Promise<NextActionAnswers> {
     const question: inquirer.Question<NextActionAnswers> = {
         name: "action",
-        type: "list",
+        type: "autocomplete",
         message: "What would you like to do?",
-        choices: actionChoices(past),
-    };
+        source: async (answersSoFar: Partial<NextActionAnswers>, input: string) =>
+            actionChoices(past)
+                .filter(c =>
+                    input == null ||
+                    c.key === input ||
+                    c.name.toLowerCase().startsWith(input.toLowerCase()))
+                .map(boldKey),
+    } as any;
     const response = await inquirer.prompt<NextActionAnswers>([question, chooseDoor(p), chooseTeleport()]);
     return response;
 }
@@ -110,4 +120,19 @@ function chooseTeleport(): inquirer.Question<NextActionAnswers> {
         message: `Enter a library to teleport to: `,
         when: (a) => a.action === "teleport",
     };
+}
+
+function boldFirstOccurrence(str: string, letter: string): string {
+    const i = str.toLowerCase().indexOf(letter.toLowerCase());
+    if (i < 0) {
+        return str;
+    }
+    return str.slice(0, i) + chalk.bold(str[i]) + str.slice(i + 1);
+}
+
+function boldKey(c: ChoiceInRoom): ChoiceInRoom {
+    return {
+        ...c,
+        name: boldFirstOccurrence(c.name, c.key),
+    }
 }

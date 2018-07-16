@@ -3,7 +3,7 @@
 import { buildRoom } from "./support/buildRoom";
 import { output, outputDoom } from "./support/output";
 import { itsaTrap } from "./support/Trap";
-import { timeToAct } from "./support/youAreIn";
+import { timeToAct } from "./support/timeToAct";
 
 buildRoom(process.cwd()).then((room) => {
     if (itsaTrap(room)) {

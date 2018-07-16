@@ -29,7 +29,7 @@ function firstParentDirectoryWithAPackageJson(dir: string, origDir: string = dir
     if (isRoot(dir)) {
         return {
             error: new Error("No package.json anywhere above " + origDir),
-            description: `A staircase upward ends in the middle of dark air. Nothing useful is above ${origDir}`
+            description: `A staircase upward ends in the middle of dark air. Nothing useful is above ${origDir}`,
         };
     }
     return firstParentDirectoryWithAPackageJson(path.dirname(dir), origDir);

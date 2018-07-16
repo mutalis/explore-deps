@@ -7,13 +7,13 @@ import * as path from "path";
 
 import { promisify } from "util";
 import { buildRoom, Room } from "./buildRoom";
-import { requestNextAction } from "./choiceInRoom";
+import { requestNextAction } from "./requestNextAction";
 import { describeMove } from "./describeMove";
 import { findLibraryRoot } from "./findLibraryRoot";
 import { output, outputCurrentState, outputDebug, outputDoom } from "./output";
 import { itsaTrap, Trap } from "./Trap";
 
-// want to: 
+// want to:
 // - make it report the difference in versions?
 // - make it guess why it couldn't resolve a dev dependency
 // - recognize links and remark on warp portal? (sounds hard)
@@ -118,11 +118,11 @@ async function goThroughDoor(room: Room, past: Room[], door: string) {
 
 async function omg(trap: Trap, room: Room, past: Room[]): ActionHappened {
     outputDoom(chalk.red(trap.description));
-    outputDebug(chalk.gray(trap.error.stack as string))
+    outputDebug(chalk.gray(trap.error.stack as string));
     return timeToAct(room, past);
 }
 
 async function win(past: Room[]): ActionHappened {
-    output(boxen("YOU WIN!", { borderColor: "magenta", padding: 2 }))
+    output(boxen("YOU WIN!", { borderColor: "magenta", padding: 2 }));
     return;
 }
