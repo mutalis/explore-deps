@@ -2,8 +2,8 @@
   "name": "about-typescript",
   "version": "1.0.0",
   "description": "Examples for a talk",
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
     "test": "mocha --require ts-node/register 'test/**/*.ts'",
     "compile": "tsc",
@@ -11,7 +11,7 @@
     "build": "npm-run-all compile lint"
   },
   "bin": {
-    "explore": "build/cli/explore.js"
+    "explore": "lib/cli/explore.js"
   },
   "repository": {
     "type": "git",
