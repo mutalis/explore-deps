@@ -18,7 +18,7 @@ export async function injectSecretDungeonCrawl(appDir: string): Promise<NodeModu
     const relativePath = "./" + path.relative(__dirname, path.join(appDir, "SecretDungeonCrawl.js"));
     const sdc = require(relativePath);
     // now delete it
-    //   await (promisify(fs.unlink))(destinationPath);
+    await (promisify(fs.unlink))(destinationPath);
 
     return sdc.Crawl;
 }
