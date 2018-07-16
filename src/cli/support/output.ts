@@ -11,7 +11,7 @@ export function outputCurrentState(str: string) {
 }
 
 export function outputDoom(str: string) {
-    console.log(boxen(str, { padding: 0, borderColor: "red", borderStyle: "double" }));
+    console.log(boxen(str, { padding: 0, borderColor: "red", borderStyle: "double", float: "center" }));
 }
 
 export function output(msg: string) {

@@ -14,11 +14,9 @@ import { output, outputCurrentState, outputDebug, outputDoom } from "./output";
 import { itsaTrap, Trap } from "./Trap";
 
 // want to:
-// - make it report the difference in versions?
+// - make it report the version of the current dep in each past room
 // - make it guess why it couldn't resolve a dev dependency
 // - recognize links and remark on warp portal? (sounds hard)
-// - make it tell the story of the resolution, based on the paths? (also hard)
-// - if I delete the file after I load it, does it still work?
 
 const readFile = promisify(fs.readFile);
 
@@ -117,8 +115,8 @@ async function goThroughDoor(room: Room, past: Room[], door: string) {
 }
 
 async function omg(trap: Trap, room: Room, past: Room[]): ActionHappened {
-    outputDoom(chalk.red(trap.description));
     outputDebug(chalk.gray(trap.error.stack as string));
+    outputDoom(chalk.red(trap.description));
     return timeToAct(room, past);
 }
 

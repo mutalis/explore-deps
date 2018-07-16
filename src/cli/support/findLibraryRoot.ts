@@ -11,7 +11,7 @@ export function findLibraryRoot(lib: string, crawl: NodeModuleResolutionExposed)
     } catch (error) {
         const details = isModuleResolutionError(error) ?
             `${error.message}\nfrom ${error.filename}\nPaths searched: ${error.paths.join("\n")}` : undefined;
-        return { error, description: `CRASH! a yawning pit opens before you. There is no module ${lib}`, details };
+        return { error, description: ` CRASH! a yawning pit opens before you. There is no module '${lib}' `, details };
     }
     outputDebug(`Resolved ${lib} to ${whereIsIt}`);
     return firstParentDirectoryWithAPackageJson(path.dirname(whereIsIt));

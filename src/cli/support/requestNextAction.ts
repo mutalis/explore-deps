@@ -106,12 +106,15 @@ function chooseDoor(p: Room): inquirer.Question<NextActionAnswers> {
         (ct) => ct.value as string);
     //  debug("The dependencies are: " + listOfDependencies.join(" & "))
     const choices = listOfDependencies.length === 0 ?
-        [{ name: "You see light ahead...", value: "VICTORY" }] :
+        [{ name: "Go toward it", value: "VICTORY" }] :
         listOfDependencies.concat([new inquirer.Separator()]);
+    const message = listOfDependencies.length === 0 ?
+        `You see light ahead...` :
+        `There are ${listOfDependencies.length} doors. Choose one to enter: `
     return {
         name: "door",
         type: "list",
-        message: `There are ${listOfDependencies.length} doors. Choose one to enter: `,
+        message,
         choices,
         when: (a) => a.action === "doors",
     };
