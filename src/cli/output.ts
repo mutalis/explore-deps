@@ -3,7 +3,7 @@ import boxen from "boxen";
 import chalk from "chalk";
 
 export function outputDebug(str: string) {
-    console.log("  " + chalk.gray(str));
+    console.log("  " + chalk.grey(str));
 }
 
 export function outputCurrentState(str: string) {
