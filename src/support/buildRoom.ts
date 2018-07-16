@@ -1,8 +1,8 @@
 import * as fs from "fs";
 import { PackageJSON } from "package-json";
 import * as path from "path";
-import { injectSecretDungeonCrawl } from "./injectSecretDungeonCrawl";
-import { NodeModuleResolutionExposed } from "./SecretDungeonCrawl";
+import { injectSecretDungeonCrawl } from "../secretDungeonCrawl/injectSecretDungeonCrawl";
+import { NodeModuleResolutionExposed } from "../secretDungeonCrawl/SecretDungeonCrawl";
 import { Trap } from "./Trap";
 
 export interface Room {

@@ -1,4 +1,4 @@
-import { Room } from "./buildRoom";
+import { Room } from "../support/buildRoom";
 export declare type NextActionAnswers = {
     action: "exit" | "back" | "gps" | "look";
 } | {

@@ -2,8 +2,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { promisify } from "util";
-import { outputDebug } from "./output";
-import { Crawl as LocalCrawl, isModuleResolutionError, NodeModuleResolutionExposed } from "./SecretDungeonCrawl";
+import { Crawl as LocalCrawl, NodeModuleResolutionExposed } from "./SecretDungeonCrawl";
 
 const secretDungeonCrawlModuleContent = fs.readFileSync(LocalCrawl.filename, { encoding: "utf8" });
 

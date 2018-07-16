@@ -1,5 +1,4 @@
 import * as path from "path";
-import { outputDebug } from "./output";
 
 export function describeMove(fromDir: string, toDir: string): string {
     const destinationName = path.basename(toDir);
@@ -28,7 +27,6 @@ export function describeMove(fromDir: string, toDir: string): string {
     }
 
     // this is unexpected
-    outputDebug("Relative forward: " + relativeForward + "\nRelative backward: " + relativeBackward);
     return `You slither into ${destinationName}`;
 }
 

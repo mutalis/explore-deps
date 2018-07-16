@@ -1,17 +1,15 @@
 import boxen from "boxen";
 import chalk from "chalk";
 import * as fs from "fs";
-import * as inquirer from "inquirer";
 import _ from "lodash";
-import * as path from "path";
 
 import { promisify } from "util";
-import { buildRoom, Room } from "./buildRoom";
-import { describeMove } from "./describeMove";
-import { findLibraryRoot } from "./findLibraryRoot";
+import { buildRoom, Room } from "../support/buildRoom";
+import { describeMove } from "../support/describeMove";
+import { findLibraryRoot } from "../support/findLibraryRoot";
 import { output, outputCurrentState, outputDebug, outputDoom } from "./output";
 import { requestNextAction } from "./requestNextAction";
-import { itsaTrap, Trap } from "./Trap";
+import { itsaTrap, Trap } from "../support/Trap";
 
 // want to:
 // - make it report the version of the current dep in each past room
@@ -121,6 +119,6 @@ async function omg(trap: Trap, room: Room, past: Room[]): ActionHappened {
 }
 
 async function win(past: Room[]): ActionHappened {
-    output(boxen("YOU WIN!", { borderColor: "magenta", padding: 2, float: "center" }));
+    output(boxen("YOU WIN!", { borderColor: "greenBright", padding: 2, float: "center", borderStyle: "double" }));
     return;
 }

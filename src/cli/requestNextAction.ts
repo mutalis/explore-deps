@@ -3,7 +3,7 @@ import * as inquirer from "inquirer";
 import inquirer_autocomplete from "inquirer-autocomplete-prompt";
 import * as _ from "lodash";
 import { DependencyMap } from "package-json";
-import { Room } from "./buildRoom";
+import { Room } from "../support/buildRoom";
 
 inquirer.registerPrompt("autocomplete", inquirer_autocomplete);
 
@@ -90,7 +90,7 @@ function autocompleteByNameOrKey(choices: ChoiceInRoom[]):
 }
 
 function choicesFromDependencyObject(optionalDeps: DependencyMap | undefined,
-                                     colorFn: (txt: string) => string): inquirer.objects.ChoiceOption[] {
+    colorFn: (txt: string) => string): inquirer.objects.ChoiceOption[] {
     const deps = optionalDeps || {};
     return Object.keys(deps).map((d) => ({
         value: d,

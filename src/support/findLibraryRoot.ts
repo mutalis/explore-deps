@@ -1,7 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import { outputDebug } from "./output";
-import { isModuleResolutionError, NodeModuleResolutionExposed } from "./SecretDungeonCrawl";
+import { isModuleResolutionError, NodeModuleResolutionExposed } from "../secretDungeonCrawl/SecretDungeonCrawl";
 import { Trap } from "./Trap";
 
 export function findLibraryRoot(lib: string, crawl: NodeModuleResolutionExposed): string | Trap {
@@ -13,7 +12,6 @@ export function findLibraryRoot(lib: string, crawl: NodeModuleResolutionExposed)
             `${error.message}\nfrom ${error.filename}\nPaths searched: ${error.paths.join("\n")}` : undefined;
         return { error, description: ` CRASH! a yawning pit opens before you. There is no module '${lib}' `, details };
     }
-    outputDebug(`Resolved ${lib} to ${whereIsIt}`);
     return firstParentDirectoryWithAPackageJson(path.dirname(whereIsIt));
 }
 
