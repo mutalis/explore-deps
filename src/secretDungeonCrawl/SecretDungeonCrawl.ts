@@ -15,29 +15,27 @@ export function isModuleResolutionError(e: Error): e is ModuleResolutionError {
     return maybe.kind === "ModuleResolutionError";
 }
 
-export interface NodeModuleResolutionExposed {
+export class NodeModuleResolutionExposed {
 
-    filename: string;
+    public filename: string;
 
-    resolvePaths(resolveMe: string): string[] | null;
+    constructor(filename: string, private localRequire: NodeRequire) {
+        this.filename = filename;
+    }
 
-    locateModule(lib: string): string;
+    public resolvePaths(resolveMe: string): string[] | null {
+        return this.localRequire.resolve.paths(resolveMe);
+    }
+
+    public locateModule(lib: string): string {
+        // console.log("SDC: resolving " + lib + " in " + __filename)
+        try {
+            return this.localRequire.resolve(lib);
+        } catch (error) {
+            throw new ModuleResolutionError(error, this.localRequire.resolve.paths(lib) || [], __filename);
+        }
+    }
 
 }
 
-export const Crawl: NodeModuleResolutionExposed = {
-    resolvePaths(resolveMe: string) {
-        return require.resolve.paths(resolveMe);
-    },
-
-    locateModule(lib: string) {
-        // console.log("SDC: resolving " + lib + " in " + __filename)
-        try {
-            return require.resolve(lib);
-        } catch (error) {
-            throw new ModuleResolutionError(error, require.resolve.paths(lib) || [], __filename);
-        }
-    },
-
-    filename: __filename,
-};
+export const Crawl = new NodeModuleResolutionExposed(__filename, require);
