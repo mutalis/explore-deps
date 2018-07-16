@@ -1,5 +1,6 @@
 export interface Trap {
     error: Error;
+    description: string;
     details?: string;
 }
 

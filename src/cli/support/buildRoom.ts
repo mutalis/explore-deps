@@ -18,7 +18,7 @@ export async function buildRoom(appDir: string): Promise<Room | Trap> {
     } catch (error) {
         return {
             error,
-            details: `You try to go to ${appDir}.\nIt is completely dark in here.\nRun away!`,
+            description: `You try to go to ${appDir}.\nIt is completely dark in here.\nRun away!`,
         };
     }
     let pj;
@@ -27,7 +27,7 @@ export async function buildRoom(appDir: string): Promise<Room | Trap> {
     } catch (error) {
         return {
             error,
-            details: `A rat bites your foot!The package.json is invalid in ${appDir} `,
+            description: `A rat bites your foot!The package.json is invalid in ${appDir} `,
         };
     }
     const room: Room = {
