@@ -29,15 +29,14 @@ export async function buildRoom(appDir: string): Promise<Room | Trap> {
     return room;
 }
 
-export async function readPackageJson(appDir: string): Promise<string | Trap> {
-    try {
-        return promisify(fs.readFile)(path.join(appDir, "package.json"), { encoding: "utf8" });
-    } catch (error) {
-        return {
-            error,
-            description: `It's too dark, I can't see anything! No package.json in ${appDir} `,
-        };
-    }
+export function readPackageJson(appDir: string): Promise<string | Trap> {
+    return promisify(fs.readFile)(path.join(appDir, "package.json"), { encoding: "utf8" })
+        .catch(error => {
+            return {
+                error,
+                description: `It's too dark, I can't see anything! No package.json in ${appDir} `,
+            };
+        })
 }
 
 export function parsePackageJson(pjContent: string): PackageJSON | Trap {
