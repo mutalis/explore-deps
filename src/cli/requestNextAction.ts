@@ -69,12 +69,12 @@ function actionChoices(past: Room[]): ChoiceInRoom[] {
 }
 
 export async function requestNextAction(p: Room, past: Room[]): Promise<NextActionAnswers> {
-    const question: inquirer.Question<NextActionAnswers> = {
+    const question: inquirer.Question<NextActionAnswers> /* note 1: type parameters */ = {
         name: "action",
-        type: "autocomplete",
+        type: "autocomplete", /* note 2: keywords as property names */
         message: "What would you like to do?",
         source: autocompleteByNameOrKey(actionChoices(past)),
-    } as any;
+    } as any; /* note 3: why any? where do these types come from? */
     const response = await inquirer.prompt<NextActionAnswers>([question, chooseDoor(p), chooseTeleport()]);
     return response;
 }

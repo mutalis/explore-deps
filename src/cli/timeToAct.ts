@@ -15,16 +15,17 @@ import { requestNextAction, NextActionAnswers, NextAction } from "./requestNextA
 // - make it guess why it couldn't resolve a dev dependency
 // - recognize links and remark on warp portal? (sounds hard)
 
-type ActionHappened = Promise<void>;
+type /* note 1: type alias */ ActionHappened = Promise<void>;
 
 export async function timeToAct(room: Room, past: Room[]): ActionHappened {
 
     outputCurrentState(`You are in "${room.packageJson.name}". It appears to be version ${room.packageJson.version}.`);
 
-    const answers: NextActionAnswers = await requestNextAction(room, past);
-    const nextAction: NextAction = answers.action;
+    const answers: NextActionAnswers /* note 3: interesting union type */ =
+        await requestNextAction(room, past); /* note 5: click in */
+    const nextAction: NextAction /* note 2: union of string types */ = answers.action;
     outputDebug(`You have chosen: ${nextAction}`);
-    switch (answers.action) {
+    switch (answers.action) { /* note 4: try changing this to nextActions */
         case "exit":
             return;
         case "back":
