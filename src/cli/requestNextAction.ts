@@ -90,7 +90,7 @@ function autocompleteByNameOrKey(choices: ChoiceInRoom[]):
 }
 
 function choicesFromDependencyObject(optionalDeps: DependencyMap | undefined,
-    colorFn: (txt: string) => string): inquirer.objects.ChoiceOption[] {
+                                     colorFn: (txt: string) => string): inquirer.objects.ChoiceOption[] {
     const deps = optionalDeps || {};
     return Object.keys(deps).map((d) => ({
         value: d,
@@ -121,14 +121,13 @@ function chooseDoor(p: Room): inquirer.Question<NextActionAnswers> {
     } as any;
 }
 
-
 function anywhereInName(choices: inquirer.objects.ChoiceOption[]):
     (answers: any, input: string) => Promise<inquirer.objects.ChoiceOption[]> {
     return async (answersSoFar: Partial<NextActionAnswers>, input: string) =>
         choices
             .filter((c) =>
                 input == null ||
-                (c.name || "").toLowerCase().includes(input.toLowerCase()))
+                (c.name || "").toLowerCase().includes(input.toLowerCase()));
 }
 
 function chooseTeleport(): inquirer.Question<NextActionAnswers> {

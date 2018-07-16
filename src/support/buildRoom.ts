@@ -1,10 +1,10 @@
 import * as fs from "fs";
 import { PackageJSON } from "package-json";
 import * as path from "path";
+import { promisify } from "util";
 import { injectSecretDungeonCrawl } from "../secretDungeonCrawl/injectSecretDungeonCrawl";
 import { NodeModuleResolutionExposed } from "../secretDungeonCrawl/SecretDungeonCrawl";
-import { Trap, itsaTrap } from "./Trap";
-import { promisify } from "util";
+import { itsaTrap, Trap } from "./Trap";
 
 export interface Room {
     crawl: NodeModuleResolutionExposed;
@@ -13,11 +13,11 @@ export interface Room {
 }
 
 export async function buildRoom(appDir: string): Promise<Room | Trap> {
-    let pjString = await readPackageJson(appDir);
+    const pjString = await readPackageJson(appDir);
     if (itsaTrap(pjString)) {
         return pjString;
     }
-    let pj = parsePackageJson(pjString);
+    const pj = parsePackageJson(pjString);
     if (itsaTrap(pj)) {
         return pj;
     }
@@ -31,12 +31,12 @@ export async function buildRoom(appDir: string): Promise<Room | Trap> {
 
 export function readPackageJson(appDir: string): Promise<string | Trap> {
     return promisify(fs.readFile)(path.join(appDir, "package.json"), { encoding: "utf8" })
-        .catch(error => {
+        .catch((error) => {
             return {
                 error,
                 description: `It's too dark, I can't see anything! No package.json in ${appDir} `,
             };
-        })
+        });
 }
 
 export function parsePackageJson(pjContent: string): PackageJSON | Trap {

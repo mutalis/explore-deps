@@ -2,7 +2,7 @@
 
 import { buildRoom } from "../support/buildRoom";
 import { itsaTrap } from "../support/Trap";
-import { output, outputDoom, outputDebug } from "./output";
+import { output, outputDebug, outputDoom } from "./output";
 import { timeToAct } from "./timeToAct";
 
 async function explore(startingDir: string) {
@@ -15,7 +15,7 @@ async function explore(startingDir: string) {
     output("The end.");
 }
 
-explore(process.cwd()).catch(err => {
+explore(process.cwd()).catch((err) => {
     outputDoom("Unhandled exception: " + err.message);
     outputDebug(err.stack);
 });
