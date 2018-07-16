@@ -4,6 +4,7 @@ import * as path from "path";
 import { injectSecretDungeonCrawl } from "../secretDungeonCrawl/injectSecretDungeonCrawl";
 import { NodeModuleResolutionExposed } from "../secretDungeonCrawl/SecretDungeonCrawl";
 import { Trap, itsaTrap } from "./Trap";
+import { promisify } from "util";
 
 export interface Room {
     crawl: NodeModuleResolutionExposed;
@@ -12,7 +13,7 @@ export interface Room {
 }
 
 export async function buildRoom(appDir: string): Promise<Room | Trap> {
-    let pjString = readPackageJson(appDir);
+    let pjString = await readPackageJson(appDir);
     if (itsaTrap(pjString)) {
         return pjString;
     }
@@ -28,9 +29,9 @@ export async function buildRoom(appDir: string): Promise<Room | Trap> {
     return room;
 }
 
-function readPackageJson(appDir: string): string | Trap {
+export async function readPackageJson(appDir: string): Promise<string | Trap> {
     try {
-        return fs.readFileSync(path.join(appDir, "package.json"), { encoding: "utf8" });
+        return promisify(fs.readFile)(path.join(appDir, "package.json"), { encoding: "utf8" });
     } catch (error) {
         return {
             error,
