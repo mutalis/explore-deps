@@ -7,8 +7,8 @@ import { buildRoom, Room } from "../support/buildRoom";
 import { describeMove } from "../support/describeMove";
 import { findLibraryRoot } from "../support/findLibraryRoot";
 import { itsaTrap, Trap } from "../support/Trap";
-import { output, outputCurrentState, outputDebug, outputDoom } from "./output";
-import { requestNextAction, NextActionAnswers, NextAction } from "./requestNextAction";
+import { greyish, output, outputCurrentState, outputDebug, outputDoom } from "./output";
+import { NextAction, NextActionAnswers, requestNextAction } from "./requestNextAction";
 
 // want to:
 // - make it report the version of the current dep in each past room
@@ -62,7 +62,7 @@ function greyNonexistent(d: string) {
     if (dirExists(d)) {
         return d;
     } else {
-        return chalk.grey(d);
+        return greyish(d);
     }
 }
 
@@ -112,7 +112,7 @@ async function goThroughDoor(room: Room, past: Room[], door: string) {
 }
 
 async function omg(trap: Trap, room: Room, past: Room[]): ActionHappened {
-    outputDebug(chalk.grey(trap.error.stack as string));
+    outputDebug(greyish(trap.error.stack as string));
     if (trap.details) {
         outputDebug("details: " + trap.details);
     }

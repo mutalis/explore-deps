@@ -4,6 +4,7 @@ import inquirer_autocomplete from "inquirer-autocomplete-prompt";
 import * as _ from "lodash";
 import { DependencyMap } from "package-json";
 import { Room } from "../support/buildRoom";
+import { greyish } from "./output";
 
 inquirer.registerPrompt("autocomplete", inquirer_autocomplete);
 
@@ -91,7 +92,7 @@ function autocompleteByNameOrKey(choices: ChoiceInRoom[]):
 }
 
 function choicesFromDependencyObject(optionalDeps: DependencyMap | undefined,
-    colorFn: (txt: string) => string): inquirer.objects.ChoiceOption[] {
+                                     colorFn: (txt: string) => string): inquirer.objects.ChoiceOption[] {
     const deps = optionalDeps || {};
     return Object.keys(deps).map((d) => ({
         value: d,
@@ -101,7 +102,7 @@ function choicesFromDependencyObject(optionalDeps: DependencyMap | undefined,
 
 function chooseDoor(p: Room): inquirer.Question<NextActionAnswers> {
     const allDependencies = choicesFromDependencyObject(p.packageJson.dependencies, chalk.white)
-        .concat(choicesFromDependencyObject(p.packageJson.devDependencies, chalk.grey))
+        .concat(choicesFromDependencyObject(p.packageJson.devDependencies, greyish))
         .concat(choicesFromDependencyObject(p.packageJson.peerDependencies, chalk.magenta));
     const listOfDependencies = _.sortBy(
         allDependencies,

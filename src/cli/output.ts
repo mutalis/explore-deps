@@ -2,8 +2,11 @@
 import boxen from "boxen";
 import chalk from "chalk";
 
+const Greyish = "#999999";
+export const greyish = chalk.hex(Greyish);
+
 export function outputDebug(str: string) {
-    console.log("  " + chalk.grey(str));
+    console.log("  " + chalk.italic(greyish(str)));
 }
 
 export function outputCurrentState(str: string) {
