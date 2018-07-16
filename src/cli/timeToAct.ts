@@ -3,20 +3,17 @@ import chalk from "chalk";
 import * as fs from "fs";
 import _ from "lodash";
 
-import { promisify } from "util";
 import { buildRoom, Room } from "../support/buildRoom";
 import { describeMove } from "../support/describeMove";
 import { findLibraryRoot } from "../support/findLibraryRoot";
 import { itsaTrap, Trap } from "../support/Trap";
 import { output, outputCurrentState, outputDebug, outputDoom } from "./output";
-import { requestNextAction } from "./requestNextAction";
+import { requestNextAction, NextActionAnswers, NextAction } from "./requestNextAction";
 
 // want to:
 // - make it report the version of the current dep in each past room
 // - make it guess why it couldn't resolve a dev dependency
 // - recognize links and remark on warp portal? (sounds hard)
-
-const readFile = promisify(fs.readFile);
 
 type ActionHappened = Promise<void>;
 
@@ -24,8 +21,9 @@ export async function timeToAct(room: Room, past: Room[]): ActionHappened {
 
     outputCurrentState(`You are in "${room.packageJson.name}". It appears to be version ${room.packageJson.version}.`);
 
-    const answers = await requestNextAction(room, past);
-    outputDebug(`You have chosen: ${answers.action}`);
+    const answers: NextActionAnswers = await requestNextAction(room, past);
+    const nextAction: NextAction = answers.action;
+    outputDebug(`You have chosen: ${nextAction}`);
     switch (answers.action) {
         case "exit":
             return;

@@ -7,16 +7,17 @@ import { Room } from "../support/buildRoom";
 
 inquirer.registerPrompt("autocomplete", inquirer_autocomplete);
 
-type NextAction = "exit" | "doors" | "back" | "teleport" | "gps" | "look";
+export type NextAction = "exit" | "doors" | "back" | "teleport" | "gps" | "look";
 
-export type NextActionAnswers = { action: "exit" | "back" | "gps" | "look" } |
-{
-    action: "doors", door: string,
-} |
-{
-    action: "teleport",
-    destination: string,
-};
+export type NextActionAnswers =
+    { action: "exit" | "back" | "gps" | "look" } |
+    {
+        action: "doors", door: string,
+    } |
+    {
+        action: "teleport",
+        destination: string,
+    };
 
 interface ChoiceInRoom extends inquirer.objects.ChoiceOption {
     value: NextAction;
@@ -90,7 +91,7 @@ function autocompleteByNameOrKey(choices: ChoiceInRoom[]):
 }
 
 function choicesFromDependencyObject(optionalDeps: DependencyMap | undefined,
-                                     colorFn: (txt: string) => string): inquirer.objects.ChoiceOption[] {
+    colorFn: (txt: string) => string): inquirer.objects.ChoiceOption[] {
     const deps = optionalDeps || {};
     return Object.keys(deps).map((d) => ({
         value: d,
