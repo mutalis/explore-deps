@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 import { buildRoom } from "../support/buildRoom";
+import { itsaTrap } from "../support/Trap";
 import { output, outputDoom } from "./output";
 import { timeToAct } from "./timeToAct";
-import { itsaTrap } from "../support/Trap";
 
 function explore(startingDir: string) {
     buildRoom(startingDir).then((room) => {

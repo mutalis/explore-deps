@@ -7,9 +7,9 @@ import { promisify } from "util";
 import { buildRoom, Room } from "../support/buildRoom";
 import { describeMove } from "../support/describeMove";
 import { findLibraryRoot } from "../support/findLibraryRoot";
+import { itsaTrap, Trap } from "../support/Trap";
 import { output, outputCurrentState, outputDebug, outputDoom } from "./output";
 import { requestNextAction } from "./requestNextAction";
-import { itsaTrap, Trap } from "../support/Trap";
 
 // want to:
 // - make it report the version of the current dep in each past room

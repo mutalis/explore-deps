@@ -2,18 +2,6 @@
   "name": "@jessitron/explore-deps",
   "version": "1.0.0",
   "description": "Explore the npm dependencies of your package in a text-based dungeon crawl",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
-  "scripts": {
-    "test": "mocha --require ts-node/register 'src/**/*.test.ts'",
-    "compile": "tsc",
-    "lint": "tslint --fix --format verbose --project tsconfig.json",
-    "clean": "rimraf lib",
-    "build": "npm-run-all compile lint"
-  },
-  "bin": {
-    "explore": "lib/cli/explore.js"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jessitron/explore-deps.git"
@@ -24,6 +12,11 @@
     "url": "https://github.com/jessitron/explore-deps/issues"
   },
   "homepage": "https://github.com/jessitron/explore-deps#readme",
+  "bin": {
+    "explore": "lib/cli/explore.js"
+  },
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "dependencies": {
     "boxen": "^1.3.0",
     "chalk": "^2.4.1",
@@ -41,5 +34,12 @@
     "ts-node": "^7.0.0",
     "tslint": "^5.10.0",
     "typescript": "^2.9.2"
+  },
+  "scripts": {
+    "test": "mocha --require ts-node/register 'src/**/*.test.ts'",
+    "compile": "tsc",
+    "lint": "tslint --fix --format verbose --project tsconfig.json",
+    "clean": "rimraf lib",
+    "build": "npm-run-all clean compile test lint"
   }
 }
