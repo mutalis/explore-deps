@@ -3,7 +3,7 @@ import { PackageJSON } from "package-json";
 import * as path from "path";
 import { injectSecretDungeonCrawl } from "../secretDungeonCrawl/injectSecretDungeonCrawl";
 import { NodeModuleResolutionExposed } from "../secretDungeonCrawl/SecretDungeonCrawl";
-import { Trap } from "./Trap";
+import { Trap, itsaTrap } from "./Trap";
 
 export interface Room {
     crawl: NodeModuleResolutionExposed;
@@ -12,23 +12,13 @@ export interface Room {
 }
 
 export async function buildRoom(appDir: string): Promise<Room | Trap> {
-    let pjString;
-    try {
-        pjString = readPackageJson(appDir);
-    } catch (error) {
-        return {
-            error,
-            description: `You try to go to ${appDir}.\nIt is completely dark in here.\nRun away!`,
-        };
+    let pjString = readPackageJson(appDir);
+    if (itsaTrap(pjString)) {
+        return pjString;
     }
-    let pj;
-    try {
-        pj = parsePackageJson(pjString);
-    } catch (error) {
-        return {
-            error,
-            description: `A rat bites your foot!The package.json is invalid in ${appDir} `,
-        };
+    let pj = parsePackageJson(pjString);
+    if (itsaTrap(pj)) {
+        return pj;
     }
     const room: Room = {
         packageJson: pj,
@@ -38,10 +28,24 @@ export async function buildRoom(appDir: string): Promise<Room | Trap> {
     return room;
 }
 
-function readPackageJson(appDir: string): string {
-    return fs.readFileSync(path.join(appDir, "package.json"), { encoding: "utf8" });
+function readPackageJson(appDir: string): string | Trap {
+    try {
+        return fs.readFileSync(path.join(appDir, "package.json"), { encoding: "utf8" });
+    } catch (error) {
+        return {
+            error,
+            description: `It's too dark, I can't see anything! No package.json in ${appDir} `,
+        };
+    }
 }
 
-function parsePackageJson(pjContent: string): PackageJSON {
-    return JSON.parse(pjContent);
+export function parsePackageJson(pjContent: string): PackageJSON | Trap {
+    try {
+        return JSON.parse(pjContent);
+    } catch (error) {
+        return {
+            error,
+            description: `A rat bites your foot! The package.json is invalid.`,
+        };
+    }
 }
