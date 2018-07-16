@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "test": "mocha --require ts-node/register 'test/**/*.ts'",
+    "test": "mocha --require ts-node/register 'src/**/*.test.ts'",
     "compile": "tsc",
     "lint": "tslint --fix --format verbose --project tsconfig.json",
     "clean": "rimraf lib",
