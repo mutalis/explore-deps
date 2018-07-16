@@ -123,6 +123,6 @@ async function omg(trap: Trap, room: Room, past: Room[]): ActionHappened {
 }
 
 async function win(past: Room[]): ActionHappened {
-    output(boxen("YOU WIN!", { borderColor: "magenta", padding: 2 }));
+    output(boxen("YOU WIN!", { borderColor: "magenta", padding: 2, float: "center" }));
     return;
 }

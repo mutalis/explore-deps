@@ -72,16 +72,20 @@ export async function requestNextAction(p: Room, past: Room[]): Promise<NextActi
         name: "action",
         type: "autocomplete",
         message: "What would you like to do?",
-        source: async (answersSoFar: Partial<NextActionAnswers>, input: string) =>
-            actionChoices(past)
-                .filter(c =>
-                    input == null ||
-                    c.key === input ||
-                    c.name.toLowerCase().startsWith(input.toLowerCase()))
-                .map(boldKey),
+        source: autocompleteByNameOrKey(actionChoices(past)),
     } as any;
     const response = await inquirer.prompt<NextActionAnswers>([question, chooseDoor(p), chooseTeleport()]);
     return response;
+}
+
+function autocompleteByNameOrKey(choices: ChoiceInRoom[]): (answers: any, input: string) => Promise<inquirer.objects.ChoiceOption[]> {
+    return async (answersSoFar: Partial<NextActionAnswers>, input: string) =>
+        choices
+            .filter(c =>
+                input == null ||
+                c.key === input ||
+                c.name.toLowerCase().startsWith(input.toLowerCase()))
+            .map(boldKey)
 }
 
 function choicesFromDependencyObject(optionalDeps: DependencyMap | undefined,
