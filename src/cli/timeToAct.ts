@@ -124,7 +124,7 @@ async function goThroughDoor(room: Room, past: Room[], door: string) {
 }
 
 async function omg(trap: Trap, room: Room, past: Room[]): ActionHappened {
-    outputDebug(greyish(trap.error.stack as string));
+    outputDebug(trap.error.stack as string);
     if (trap.details) {
         outputDebug("details: " + trap.details);
     }

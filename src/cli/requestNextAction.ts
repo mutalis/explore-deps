@@ -1,8 +1,6 @@
 import chalk from "chalk";
 import * as inquirer from "inquirer";
 import inquirerAutocomplete from "inquirer-autocomplete-prompt";
-import * as _ from "lodash";
-import { DependencyMap, PackageJSON } from "package-json";
 import { Room } from "../support/buildRoom";
 import { greyish } from "./output";
 import { allDependencies, DependencyKind, SomeDependency } from "../support/allDependencies";
