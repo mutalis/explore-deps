@@ -118,8 +118,7 @@ async function tryToTeleport(params: { room: Room, past: Room[], lib: string }):
     if (itsaTrap(newRoom)) {
         return omg(newRoom, room, past);
     }
-    past.push(room);
-    return timeToAct(newRoom, past);
+    return timeToAct(newRoom, [...past, room]);
 }
 
 async function goThroughDoor(room: Room, past: Room[], door: string) {
