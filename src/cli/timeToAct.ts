@@ -22,16 +22,16 @@ export async function timeToAct(room: Room, past: Room[]): ActionHappened {
     outputCurrentState(`You are in "${room.packageJson.name}". It appears to be version ${room.packageJson.version}.`);
 
     const answers: NextActionAnswers /* note 3: interesting union type */ =
-        await requestNextAction(room, past); /* note 5: click in */
+        await requestNextAction(room, past); /* note 6: click in */
     const nextAction: NextAction /* note 2: union of string types */ = answers.action;
     outputDebug(`You have chosen: ${nextAction}`);
     switch (answers.action) { /* note 4: try changing this to nextActions */
         case "exit":
             return;
         case "back":
-            return timeToAct((past.pop() as Room), past);
+            return timeToAct((past.pop() as Room), past); /* note 5: change to array destructure */
         case "teleport":
-            return tryToTeleport(room, past, answers.destination);
+            return tryToTeleport({ room, past, lib: answers.destination });
         case "look":
             return lookAround(room, past);
         case "gps":
@@ -75,9 +75,11 @@ function dirExists(d: string): boolean {
     }
 }
 
-async function tryToTeleport(room: Room, past: Room[], destination: string): ActionHappened {
-    output(`You want to go to: ${destination}`);
-    const otherSide = findLibraryRoot(destination, room.crawl);
+async function tryToTeleport(params: { room: Room, past: Room[], lib: string }): ActionHappened {
+    const { room, past, lib } = params;
+
+    output(`You want to go to: ${lib}`);
+    const otherSide = findLibraryRoot(lib, room.crawl);
     if (itsaTrap(otherSide)) {
         outputDoom(chalk.yellow("Your teleport fails."));
         outputDebug(otherSide.details || otherSide.error.message);

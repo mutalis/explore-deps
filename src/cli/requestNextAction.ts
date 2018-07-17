@@ -1,12 +1,12 @@
 import chalk from "chalk";
 import * as inquirer from "inquirer";
-import inquirer_autocomplete from "inquirer-autocomplete-prompt";
+import inquirerAutocomplete from "inquirer-autocomplete-prompt";
 import * as _ from "lodash";
 import { DependencyMap } from "package-json";
 import { Room } from "../support/buildRoom";
 import { greyish } from "./output";
 
-inquirer.registerPrompt("autocomplete", inquirer_autocomplete);
+inquirer.registerPrompt("autocomplete", inquirerAutocomplete);
 
 export type NextAction = "exit" | "doors" | "back" | "teleport" | "gps" | "look";
 
@@ -92,7 +92,7 @@ function autocompleteByNameOrKey(choices: ChoiceInRoom[]):
 }
 
 function choicesFromDependencyObject(optionalDeps: DependencyMap | undefined,
-                                     colorFn: (txt: string) => string): inquirer.objects.ChoiceOption[] {
+    colorFn: (txt: string) => string): inquirer.objects.ChoiceOption[] {
     const deps = optionalDeps || {};
     return Object.keys(deps).map((d) => ({
         value: d,
@@ -107,7 +107,6 @@ function chooseDoor(p: Room): inquirer.Question<NextActionAnswers> {
     const listOfDependencies = _.sortBy(
         allDependencies,
         (ct) => ct.value as string);
-    //  debug("The dependencies are: " + listOfDependencies.join(" & "))
     const choices = listOfDependencies.length === 0 ?
         [{ name: "Go toward it", value: "VICTORY" }] :
         listOfDependencies.concat([new inquirer.Separator()]);
