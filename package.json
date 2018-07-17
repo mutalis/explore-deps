@@ -41,5 +41,8 @@
     "lint": "tslint --fix --format verbose --project tsconfig.json",
     "clean": "rimraf lib",
     "build": "npm-run-all clean compile test lint"
+  },
+  "engines": {
+    "node": ">= 9.11.2"
   }
 }
