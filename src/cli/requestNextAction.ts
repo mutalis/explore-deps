@@ -5,6 +5,7 @@ import * as _ from "lodash";
 import { DependencyMap, PackageJSON } from "package-json";
 import { Room } from "../support/buildRoom";
 import { greyish } from "./output";
+import { allDependencies, DependencyKind, SomeDependency } from "../support/allDependencies";
 
 inquirer.registerPrompt("autocomplete", inquirerAutocomplete);
 
@@ -106,30 +107,6 @@ function choiceFromDependendency(dep: SomeDependency): inquirer.objects.ChoiceOp
         value: dep.name,
         name: colorFn(dep.kind)(dep.name + ":" + dep.versionRequested),
     }
-}
-
-type DependencyKind = "dev" | "peer" | "full"
-interface SomeDependency {
-    kind: DependencyKind;
-    name: string,
-    versionRequested: string,
-}
-
-function allDependencies(pj: PackageJSON): SomeDependency[] {
-    return describeDependencies(pj.dependencies, "full")
-        .concat(describeDependencies(pj.devDependencies, "dev"))
-        .concat(describeDependencies(pj.peerDependencies, "peer"));
-}
-
-function describeDependencies(depObject: DependencyMap | undefined, kind: DependencyKind): SomeDependency[] {
-    if (depObject == undefined) {
-        return [];
-    }
-    return Object.keys(depObject).sort().map(key => ({
-        kind,
-        name: key,
-        versionRequested: depObject[key],
-    }))
 }
 
 function chooseDoor(p: Room): inquirer.Question<NextActionAnswers> {
