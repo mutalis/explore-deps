@@ -89,8 +89,8 @@ async function tryToTeleport(params: { room: Room, past: Room[], lib: string }):
     output(`You want to go to: ${lib}`);
     const otherSide = findLibraryRoot(lib, room.crawl);
     if (itsaTrap(otherSide)) {
+        output(otherSide.details || otherSide.error.message);
         outputDoom(chalk.yellow("Your teleport fails."));
-        outputDebug(otherSide.details || otherSide.error.message);
         return timeToAct(room, past);
     }
     output(chalk.cyan("Magic! " + describeMove(room.appDir, otherSide)));
