@@ -1,6 +1,7 @@
 {
     "defaultSeverity": "warn",
     "rules": {
+        "no-floating-promises": true,
         "adjacent-overload-signatures": true,
         "align": {
             "options": [

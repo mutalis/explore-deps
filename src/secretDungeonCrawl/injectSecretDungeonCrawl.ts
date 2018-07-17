@@ -11,7 +11,10 @@ const writeFile = promisify(fs.writeFile);
 export async function injectSecretDungeonCrawl(appDir: string): Promise<NodeModuleResolutionExposed> {
     // write the secret crawler to the directory of interest
     const destinationPath: string = path.join(appDir, path.basename(LocalCrawl.filename));
-    // outputDebug("writing to: " + destinationPath);
+    /* NOTE: to see a bug that tslint can catch,
+       remove this await.
+       To see tslint catch it, add to tslint.rules "no-floating-promises" : true
+       */
     await writeFile(destinationPath, secretDungeonCrawlModuleContent, { encoding: "utf8" });
 
     // now load it as a module
