@@ -20,6 +20,7 @@ in which I hope to convince you that this language has some cool features, and y
 
 Cover:
 -   all js is ts
+-   tsc outputs js, even when it fails
 -   union types
 -   type guards
 -   type parameters and defaults
@@ -28,11 +29,11 @@ Cover:
 -   vscode: type hints, useful error messages
 -   function types and that stupid thing where you have to supply a name
 -   default parameters that use prior parameters
--   parameter objects, Partial
+-   parameter objects, Partial, spread
+-   destructuring
 
 ## Section 2: The runtime. Node and the many dialects of JavaScript
 
--   tsc outputs js, even when it fails
 -   ... but what kind of JS does it output?
 -   callbacks, promises, async/await
 -   Node and V8. thread locals?

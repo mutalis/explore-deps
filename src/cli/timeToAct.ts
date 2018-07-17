@@ -99,18 +99,20 @@ async function goThroughDoor(room: Room, past: Room[], door: string) {
         past.push(room);
         return win(past);
     }
+
     output(`You have examined all the doors before you, and chosen: ${door}`);
     const otherSide = findLibraryRoot(door, room.crawl);
     if (itsaTrap(otherSide)) {
         return omg(otherSide, room, past);
     }
     output(chalk.yellow(describeMove(room.appDir, otherSide)));
+
     const newRoom = await buildRoom(otherSide);
     if (itsaTrap(newRoom)) {
         return omg(newRoom, room, past);
     }
-    past.push(room);
-    return timeToAct(newRoom, past);
+
+    return timeToAct(newRoom, [room, ...past]);
 }
 
 async function omg(trap: Trap, room: Room, past: Room[]): ActionHappened {

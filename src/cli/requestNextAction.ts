@@ -92,7 +92,7 @@ function autocompleteByNameOrKey(choices: ChoiceInRoom[]):
 }
 
 function choicesFromDependencyObject(optionalDeps: DependencyMap | undefined,
-    colorFn: (txt: string) => string): inquirer.objects.ChoiceOption[] {
+                                     colorFn: (txt: string) => string): inquirer.objects.ChoiceOption[] {
     const deps = optionalDeps || {};
     return Object.keys(deps).map((d) => ({
         value: d,
