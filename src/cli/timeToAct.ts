@@ -22,7 +22,7 @@ export async function timeToAct(room: Room, past: Room[]): ActionHappened {
     outputCurrentState(`You are in "${room.packageJson.name}". It appears to be version ${room.packageJson.version}.`);
 
     const answers: NextActionAnswers /* note 3: interesting union type */ =
-        await requestNextAction(room, past); /* note 6: click in */
+        await requestNextAction(room, past); /* note 7: click in */
     const nextAction: NextAction /* note 2: union of string types */ = answers.action;
     outputDebug(`You have chosen: ${nextAction}`);
     switch (answers.action) { /* note 4: try changing this to nextActions */
@@ -33,7 +33,7 @@ export async function timeToAct(room: Room, past: Room[]): ActionHappened {
         case "teleport":
             return tryToTeleport({ room, past, lib: answers.destination });
         case "look":
-            return lookAround(room, past);
+            return lookAround(room, past); /* note 6: object destructuring */
         case "gps":
             checkGPS(room);
             return timeToAct(room, past);
@@ -42,12 +42,20 @@ export async function timeToAct(room: Room, past: Room[]): ActionHappened {
     }
 }
 
-async function lookAround(room: Room, past: Room[]) {
-    const pj = room.packageJson;
-    const usefulMessage = `${pj.description}
-author: ${JSON.stringify(pj.author)}
-license: ${pj.license}
-repo: ${_.get(pj, "repository.url")}`;
+export async function lookAround(room: Room, past: Room[]) {
+    const { author, license, description, repository, main } =
+        room.packageJson; /* note: change to nested destructure */
+    const usefulMessage = `${description}
+author: ${JSON.stringify(author)}
+license: ${license}
+repo: ${_.get(repository, "url")}
+main: ${main || "index.ts"}`;
+    /* notes:
+     * stringify is dangerous
+     * "or" as nil punning
+     * _.get for nil safety
+     */
+
     output(boxen(usefulMessage, { float: "center", borderColor: "magenta" }));
     return timeToAct(room, past);
 }

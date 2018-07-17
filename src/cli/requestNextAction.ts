@@ -2,7 +2,7 @@ import chalk from "chalk";
 import * as inquirer from "inquirer";
 import inquirerAutocomplete from "inquirer-autocomplete-prompt";
 import * as _ from "lodash";
-import { DependencyMap } from "package-json";
+import { DependencyMap, PackageJSON } from "package-json";
 import { Room } from "../support/buildRoom";
 import { greyish } from "./output";
 
@@ -91,25 +91,52 @@ function autocompleteByNameOrKey(choices: ChoiceInRoom[]):
             .map(boldKey);
 }
 
-function choicesFromDependencyObject(optionalDeps: DependencyMap | undefined,
-    colorFn: (txt: string) => string): inquirer.objects.ChoiceOption[] {
-    const deps = optionalDeps || {};
-    return Object.keys(deps).map((d) => ({
-        value: d,
-        name: colorFn(d + ":" + deps[d]),
-    }));
+function colorFn(kind: DependencyKind): (txt: string) => string {
+    if (kind === "dev") {
+        return greyish;
+    }
+    if (kind === "peer") {
+        return chalk.magenta;
+    }
+    return chalk.white;
+}
+
+function choiceFromDependendency(dep: SomeDependency): inquirer.objects.ChoiceOption {
+    return {
+        value: dep.name,
+        name: colorFn(dep.kind)(dep.name + ":" + dep.versionRequested),
+    }
+}
+
+type DependencyKind = "dev" | "peer" | "full"
+interface SomeDependency {
+    kind: DependencyKind;
+    name: string,
+    versionRequested: string,
+}
+
+function allDependencies(pj: PackageJSON): SomeDependency[] {
+    return describeDependencies(pj.dependencies, "full")
+        .concat(describeDependencies(pj.devDependencies, "dev"))
+        .concat(describeDependencies(pj.peerDependencies, "peer"));
+}
+
+function describeDependencies(depObject: DependencyMap | undefined, kind: DependencyKind): SomeDependency[] {
+    if (depObject == undefined) {
+        return [];
+    }
+    return Object.keys(depObject).sort().map(key => ({
+        kind,
+        name: key,
+        versionRequested: depObject[key],
+    }))
 }
 
 function chooseDoor(p: Room): inquirer.Question<NextActionAnswers> {
-    const allDependencies = choicesFromDependencyObject(p.packageJson.dependencies, chalk.white)
-        .concat(choicesFromDependencyObject(p.packageJson.devDependencies, greyish))
-        .concat(choicesFromDependencyObject(p.packageJson.peerDependencies, chalk.magenta));
-    const listOfDependencies = _.sortBy(
-        allDependencies,
-        (ct) => ct.value as string);
+    const listOfDependencies = allDependencies(p.packageJson)
     const choices = listOfDependencies.length === 0 ?
         [{ name: "Go toward it", value: "VICTORY" }] :
-        listOfDependencies.concat([new inquirer.Separator()]);
+        listOfDependencies.map(choiceFromDependendency);
     const message = listOfDependencies.length === 0 ?
         `You see light ahead...` :
         `There are ${listOfDependencies.length} doors. Choose one to enter: `;

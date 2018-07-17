@@ -21,7 +21,7 @@ export function findLibraryRoot(lib: string, crawl: NodeModuleResolutionExposed)
     const resolved = resolutionAttempts.find((ra) => ra.isResolved);
 
     if (!resolved) {
-        const allPaths = _.flatMap(resolutionAttempts, (ra) => ra.failedLookupLocations);
+        const allPaths = _.flatMap(resolutionAttempts, (ra) => ra.failedLookupLocations); /* note: lodash again */
         const error = new Error(`Module ${lib} could not be resolved`);
         const details = `Paths searched: ${allPaths.join("\n")}`;
         const description = ` CRASH! a yawning pit opens before you. There is no module '${lib}' `;
@@ -34,7 +34,7 @@ function resolveWithTS(lib: string, crawl: NodeModuleResolutionExposed): ModuleR
     const tsResolution = ts.resolveModuleName(lib, crawl.filename, {}, ts.sys);
     return {
         kind: "ts",
-        isResolved: tsResolution.resolvedModule != undefined,
+        isResolved: tsResolution.resolvedModule != null, /* note: double vs triple equal */
         failedLookupLocations: (tsResolution as any).failedLookupLocations,
         resolvedFileName: _.get(tsResolution, "resolvedModule.resolvedFileName"),
     };
