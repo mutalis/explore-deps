@@ -3,6 +3,7 @@ import chalk from "chalk";
 import * as fs from "fs";
 import _ from "lodash";
 
+import { promisify } from "util";
 import { allDependencies } from "../support/allDependencies";
 import { buildRoom, Room } from "../support/buildRoom";
 import { describeMove } from "../support/describeMove";
@@ -10,7 +11,6 @@ import { findLibraryRoot } from "../support/findLibraryRoot";
 import { itsaTrap, Trap } from "../support/Trap";
 import { greyish, output, outputCurrentState, outputDebug, outputDoom } from "./output";
 import { NextAction, NextActionAnswers, requestNextAction } from "./requestNextAction";
-import { promisify } from "util";
 
 // want to:
 // - make it report the version of the current dep in each past room
@@ -38,7 +38,7 @@ export async function timeToAct(room: Room, past: Room[]): ActionHappened {
         case "look":
             return lookAround(room, past); /* note 6: object destructuring */
         case "gps":
-            checkGPS(room);
+            await checkGPS(room);
             return timeToAct(room, past);
         case "doors":
             return goThroughDoor(room, past, answers.door);
@@ -79,7 +79,7 @@ main: ${main || "index.ts"}`;
 
     output(boxen(usefulMessage, {
         float: "center",
-        borderColor: "magenta"
+        borderColor: "magenta",
     }));
     return timeToAct(room, past);
 }
@@ -93,7 +93,8 @@ async function checkGPS(room: Room): ActionHappened {
 }
 
 function greyNonexistent(d: string) {
-    /* NOTE tslint: since I updated dirExists to be async, this is a bug */
+    /* NOTE tslint: since I updated dirExists to be async, this is a bug 
+       It can be discovered with strict-boolean-expressions, bug ugh */
     if (dirExists(d)) {
         return d;
     } else {

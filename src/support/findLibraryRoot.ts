@@ -2,9 +2,9 @@ import * as fs from "fs";
 import _ from "lodash";
 import * as path from "path";
 import ts from "typescript";
+import { promisify } from "util";
 import { isModuleResolutionError, NodeModuleResolutionExposed } from "../secretDungeonCrawl/SecretDungeonCrawl";
 import { Trap } from "./Trap";
-import { promisify } from "util";
 
 interface ModuleResolutionResult {
     kind: "node" | "ts";
@@ -14,7 +14,7 @@ interface ModuleResolutionResult {
 }
 
 export async function findLibraryRoot(lib: string,
-    crawl: NodeModuleResolutionExposed): Promise<string | Trap> {
+                                      crawl: NodeModuleResolutionExposed): Promise<string | Trap> {
 
     const resolutionAttempts = [
         resolveWithNode(lib, crawl),
@@ -61,7 +61,7 @@ function resolveWithNode(lib: string, crawl: NodeModuleResolutionExposed): Modul
 }
 
 async function firstParentDirectoryWithAPackageJson(dir: string,
-    origDir: string = dir): Promise<string | Trap> {
+                                                    origDir: string = dir): Promise<string | Trap> {
     try {
         const stat = await promisify(fs.stat)(path.join(dir, "package.json"));
         if (stat.isFile()) {
