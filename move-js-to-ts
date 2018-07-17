@@ -1,7 +1,0 @@
-#!/bin/bash
-
-for file in $(find src -name '*.js')
-do
-   ts_name=$( echo $file | sed 's/js$/ts/' )
-   mv $file $ts_name
-done
