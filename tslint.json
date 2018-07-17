@@ -60,11 +60,7 @@
                 "spaces"
             ]
         },
-        "interface-name": {
-            "options": [
-                "always-prefix"
-            ]
-        },
+        "interface-name": false, // This is not C#
         "interface-over-type-literal": true,
         "jsdoc-format": true,
         "label-position": true,
@@ -122,7 +118,7 @@
             ]
         },
         "object-literal-shorthand": true,
-        "object-literal-sort-keys": true,
+        "object-literal-sort-keys": false, // I like to order by importance
         "one-line": {
             "options": [
                 "check-catch",
