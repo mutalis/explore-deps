@@ -96,7 +96,7 @@ declare module "package-json" {
      * A map of dependencies
      */
     export interface DependencyMap {
-        [dependencyName: string]: string;
+        [dependencyName: string]: string; /* note: index types */
     }
 
     /**

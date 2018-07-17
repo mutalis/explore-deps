@@ -24,8 +24,8 @@ export class NodeModuleResolutionExposed {
         this.filename = filename;
     }
 
-    public resolvePaths(resolveMe: string): string[] | null {
-        return this.localRequire.resolve.paths(resolveMe);
+    public resolvePaths(resolveMe: string): string[] {
+        return this.localRequire.resolve.paths(resolveMe) || [];
     }
 
     public locateModule(lib: string): string {

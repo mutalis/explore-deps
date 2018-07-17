@@ -10,6 +10,7 @@ import { findLibraryRoot } from "../support/findLibraryRoot";
 import { itsaTrap, Trap } from "../support/Trap";
 import { greyish, output, outputCurrentState, outputDebug, outputDoom } from "./output";
 import { NextAction, NextActionAnswers, requestNextAction } from "./requestNextAction";
+import { promisify } from "util";
 
 // want to:
 // - make it report the version of the current dep in each past room
@@ -76,17 +77,23 @@ main: ${main || "index.ts"}`;
      * _.get for nil safety
      */
 
-    output(boxen(usefulMessage, { float: "center", borderColor: "magenta" }));
+    output(boxen(usefulMessage, {
+        float: "center",
+        borderColor: "magenta"
+    }));
     return timeToAct(room, past);
 }
 
-function checkGPS(room: Room) {
-    const possibleDirs = (room.crawl.resolvePaths("anything") || []).map(greyNonexistent);
-    output("From here, it is possible to reach rooms within:\n" + possibleDirs.join("\n"));
+async function checkGPS(room: Room): ActionHappened {
+    const possibleDirs = room.crawl.resolvePaths("anything")
+        .map(greyNonexistent);
+    output("From here, it is possible to reach rooms within:\n" +
+        possibleDirs.join("\n"));
     output(chalk.yellow("You are in " + room.appDir));
 }
 
 function greyNonexistent(d: string) {
+    /* NOTE tslint: since I updated dirExists to be async, this is a bug */
     if (dirExists(d)) {
         return d;
     } else {
@@ -94,9 +101,9 @@ function greyNonexistent(d: string) {
     }
 }
 
-function dirExists(d: string): boolean {
+async function dirExists(d: string): Promise<boolean> {
     try {
-        const stat = fs.statSync(d);
+        const stat = await promisify(fs.stat)(d);
         return stat.isDirectory();
     } catch {
         return false;
