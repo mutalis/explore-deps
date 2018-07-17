@@ -110,7 +110,7 @@ async function tryToTeleport(params: { room: Room, past: Room[], lib: string }):
     const otherSide = findLibraryRoot(lib, room.crawl);
     if (itsaTrap(otherSide)) {
         output(otherSide.details || otherSide.error.message);
-        outputDoom(chalk.yellow("Your teleport fails."));
+        outputDoom(chalk.yellow(`Your teleport fails.\n${lib} is not reachable from ${room.packageJson.name}`));
         return timeToAct(room, past);
     }
     output(chalk.cyan("Magic! " + describeMove(room.appDir, otherSide)));
