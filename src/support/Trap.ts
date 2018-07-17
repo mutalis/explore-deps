@@ -6,5 +6,6 @@ export interface Trap {
 
 export function itsaTrap(t: any): t is Trap {
     const maybe = t as Trap;
-    return maybe.error !== undefined;
+    return maybe.error !== undefined &&
+        maybe.description !== undefined;
 }
