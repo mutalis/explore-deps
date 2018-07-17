@@ -1,9 +1,9 @@
 import chalk from "chalk";
 import * as inquirer from "inquirer";
 import inquirerAutocomplete from "inquirer-autocomplete-prompt";
+import { allDependencies, DependencyKind, SomeDependency } from "../support/allDependencies";
 import { Room } from "../support/buildRoom";
 import { greyish } from "./output";
-import { allDependencies, DependencyKind, SomeDependency } from "../support/allDependencies";
 
 inquirer.registerPrompt("autocomplete", inquirerAutocomplete);
 
@@ -104,11 +104,11 @@ function choiceFromDependendency(dep: SomeDependency): inquirer.objects.ChoiceOp
     return {
         value: dep.name,
         name: colorFn(dep.kind)(dep.name + ":" + dep.versionRequested),
-    }
+    };
 }
 
 function chooseDoor(p: Room): inquirer.Question<NextActionAnswers> {
-    const listOfDependencies = allDependencies(p.packageJson)
+    const listOfDependencies = allDependencies(p.packageJson);
     const choices = listOfDependencies.length === 0 ?
         [{ name: "Go toward it", value: "VICTORY" }] :
         listOfDependencies.map(choiceFromDependendency);

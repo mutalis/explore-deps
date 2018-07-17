@@ -2,6 +2,7 @@
  * I am here to expose your Node module resolution secrets.
  * This must not import anything unglobal
  */
+// tslint:disable:max-classes-per-file
 
 export class ModuleResolutionError extends Error {
     public readonly kind = "ModuleResolutionError";

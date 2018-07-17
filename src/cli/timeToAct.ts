@@ -3,6 +3,7 @@ import chalk from "chalk";
 import * as fs from "fs";
 import _ from "lodash";
 
+import { allDependencies } from "../support/allDependencies";
 import { buildRoom, Room } from "../support/buildRoom";
 import { describeMove } from "../support/describeMove";
 import { findLibraryRoot } from "../support/findLibraryRoot";
@@ -19,7 +20,8 @@ type /* note 1: type alias */ ActionHappened = Promise<void>;
 
 export async function timeToAct(room: Room, past: Room[]): ActionHappened {
 
-    outputCurrentState(`You are in "${room.packageJson.name}". It appears to be version ${room.packageJson.version}.`);
+    outputCurrentState(`You are in "${room.packageJson.name}". It appears to be version ${room.packageJson.version}.`
+        + describeVersionDifference(room, past));
 
     const answers: NextActionAnswers /* note 3: interesting union type */ =
         await requestNextAction(room, past); /* note 7: click in */
@@ -40,6 +42,24 @@ export async function timeToAct(room: Room, past: Room[]): ActionHappened {
         case "doors":
             return goThroughDoor(room, past, answers.door);
     }
+}
+
+function describeVersionDifference(room: Room, past: Room[]): string {
+    const prefix = "\n";
+    if (past.length === 0) {
+        return "";
+    }
+    const weGotHereFrom: Room = past[0];
+    const theyWanted = allDependencies(weGotHereFrom.packageJson).find((d) => d.name === room.packageJson.name);
+    const previousPackageName = weGotHereFrom.packageJson.name;
+    if (theyWanted === undefined) {
+        return "";
+    }
+    if (theyWanted.versionRequested === room.packageJson.version) {
+        return prefix + `Just what ${previousPackageName} wanted.`;
+    }
+    // TODO: consult semver for whether this is satisfied
+    return prefix + `${previousPackageName} wanted ${theyWanted.versionRequested}`;
 }
 
 export async function lookAround(room: Room, past: Room[]) {
