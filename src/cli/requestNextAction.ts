@@ -59,7 +59,7 @@ const CheckGPS: ChoiceInRoom = {
 function actionChoices(past: Room[]): ChoiceInRoom[] {
     if (past.length > 0) {
         const goBack: ChoiceInRoom = {
-            name: "Go back to " + past[past.length - 1].packageJson.name,
+            name: "Go back to " + past[0].packageJson.name,
             value: "back",
             key: "b",
         };
@@ -92,7 +92,7 @@ function autocompleteByNameOrKey(choices: ChoiceInRoom[]):
 }
 
 function choicesFromDependencyObject(optionalDeps: DependencyMap | undefined,
-                                     colorFn: (txt: string) => string): inquirer.objects.ChoiceOption[] {
+    colorFn: (txt: string) => string): inquirer.objects.ChoiceOption[] {
     const deps = optionalDeps || {};
     return Object.keys(deps).map((d) => ({
         value: d,

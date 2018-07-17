@@ -29,7 +29,7 @@ export async function timeToAct(room: Room, past: Room[]): ActionHappened {
         case "exit":
             return;
         case "back":
-            return timeToAct((past.pop() as Room), past); /* note 5: change to array destructure */
+            return timeToAct((past.shift() as Room), past); /* note 5: change to array destructure */
         case "teleport":
             return tryToTeleport({ room, past, lib: answers.destination });
         case "look":
