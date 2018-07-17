@@ -81,9 +81,9 @@ main: ${main || "index.ts"}`;
 }
 
 function checkGPS(room: Room) {
-    output(chalk.yellow("You are in " + room.appDir));
     const possibleDirs = (room.crawl.resolvePaths("anything") || []).map(greyNonexistent);
     output("From here, it is possible to reach rooms within:\n" + possibleDirs.join("\n"));
+    output(chalk.yellow("You are in " + room.appDir));
 }
 
 function greyNonexistent(d: string) {
