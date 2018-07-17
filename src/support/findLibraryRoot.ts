@@ -4,6 +4,7 @@ import * as path from "path";
 import ts from "typescript";
 import { isModuleResolutionError, NodeModuleResolutionExposed } from "../secretDungeonCrawl/SecretDungeonCrawl";
 import { Trap } from "./Trap";
+import { promisify } from "util";
 
 interface ModuleResolutionResult {
     kind: "node" | "ts";
@@ -12,7 +13,8 @@ interface ModuleResolutionResult {
     failedLookupLocations: string[];
 }
 
-export function findLibraryRoot(lib: string, crawl: NodeModuleResolutionExposed): string | Trap {
+export async function findLibraryRoot(lib: string,
+    crawl: NodeModuleResolutionExposed): Promise<string | Trap> {
 
     const resolutionAttempts = [
         resolveWithNode(lib, crawl),
@@ -58,9 +60,10 @@ function resolveWithNode(lib: string, crawl: NodeModuleResolutionExposed): Modul
     }
 }
 
-function firstParentDirectoryWithAPackageJson(dir: string, origDir: string = dir): string | Trap {
+async function firstParentDirectoryWithAPackageJson(dir: string,
+    origDir: string = dir): Promise<string | Trap> {
     try {
-        const stat = fs.statSync(path.join(dir, "package.json"));
+        const stat = await promisify(fs.stat)(path.join(dir, "package.json"));
         if (stat.isFile()) {
             return dir;
         }
