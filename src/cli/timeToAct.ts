@@ -18,7 +18,8 @@ type /* note 1: type alias */ ActionHappened = Promise<void>;
 
 export async function timeToAct(room: Room, past: Room[]): ActionHappened {
 
-    outputCurrentState(`You are in "${room.packageJson.name}". It appears to be version ${room.packageJson.version}.`
+    outputCurrentState(`You are in "${room.packageJson.name}".
+It appears to be version ${room.packageJson.version}.`
         + describeVersionDifference(room, past));
 
     const answers: NextActionAnswers /* note 3: interesting union type */ =
