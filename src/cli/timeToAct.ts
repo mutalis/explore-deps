@@ -2,6 +2,7 @@ import boxen from "boxen";
 import chalk from "chalk";
 import * as fs from "fs";
 import _ from "lodash";
+import * as semver from "semver";
 
 import { promisify } from "util";
 import { allDependencies } from "../support/allDependencies";
@@ -11,11 +12,6 @@ import { findLibraryRoot } from "../support/findLibraryRoot";
 import { itsaTrap, Trap } from "../support/Trap";
 import { greyish, output, outputCurrentState, outputDebug, outputDoom } from "./output";
 import { NextAction, NextActionAnswers, requestNextAction, VictoryDoor, NoDoor } from "./requestNextAction";
-
-// want to:
-// - make it report the version of the current dep in each past room
-// - make it guess why it couldn't resolve a dev dependency
-// - recognize links and remark on warp portal? (sounds hard)
 
 type /* note 1: type alias */ ActionHappened = Promise<void>;
 
@@ -53,15 +49,29 @@ function describeVersionDifference(room: Room, past: Room[]): string {
     }
     const weGotHereFrom: Room = past[0];
     const theyWanted = allDependencies(weGotHereFrom.packageJson).find((d) => d.name === room.packageJson.name);
+    const theyGot = room.packageJson.version;
     const previousPackageName = weGotHereFrom.packageJson.name;
     if (theyWanted === undefined) {
         return "";
     }
-    if (theyWanted.versionRequested === room.packageJson.version) {
-        return prefix + `Just what ${previousPackageName} wanted.`;
+    if (theyWanted.versionRequested === theyGot) {
+        return chalk.green(prefix + `Just what ${previousPackageName} wanted.`);
     }
-    // TODO: consult semver for whether this is satisfied
-    return prefix + `${previousPackageName} wanted ${theyWanted.versionRequested}`;
+
+    if (semver.satisfies(theyGot, theyWanted.versionRequested)) {
+        return chalk.green(prefix +
+            `${previousPackageName} wanted ${theyWanted.versionRequested}`);
+    } else {
+        let comment = "";
+        if (theyWanted.kind === "dev") {
+            comment = "\n(it's a dev dependency, won't impact runtime)";
+        } else if (theyWanted.kind === "peer") {
+            comment = "\nPeer dependencies are so tricky."
+        }
+        return chalk.red(prefix +
+            `But ${previousPackageName} wanted ${theyWanted.versionRequested}` +
+            comment);
+    }
 }
 
 export async function lookAround(room: Room, past: Room[]) {
@@ -141,7 +151,7 @@ async function goThroughDoor(room: Room, past: Room[], door: string) {
     output(`You have examined all the doors before you, and chosen: ${door}`);
     const otherSide = await findLibraryRoot(door, room.crawl);
     if (itsaTrap(otherSide)) {
-        return omg(otherSide, room, past);
+        return omg(otherSide, room, past, guessAtReason(room, door));
     }
     output(chalk.yellow(describeMove(room.appDir, otherSide)));
 
@@ -153,12 +163,20 @@ async function goThroughDoor(room: Room, past: Room[], door: string) {
     return timeToAct(newRoom, [room, ...past]);
 }
 
-async function omg(trap: Trap, room: Room, past: Room[]): ActionHappened {
+function guessAtReason(room: Room, failedDoor: string): string | undefined {
+    const dep = allDependencies(room.packageJson).find(d => d.name === failedDoor);
+    if (dep && dep.kind === "dev") {
+        return `Fortunately, this is a dev dependency, so ${room.packageJson.name} only needs it at build time.`;
+    }
+    return;
+}
+
+async function omg(trap: Trap, room: Room, past: Room[], possibleReason?: string): ActionHappened {
     outputDebug(trap.error.stack as string);
     if (trap.details) {
         outputDebug("details: " + trap.details);
     }
-    outputDoom(chalk.red(trap.description));
+    outputDoom(chalk.red(trap.description) + (possibleReason ? "\n" + possibleReason : ""));
     return timeToAct(room, past);
 }
 

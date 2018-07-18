@@ -23,6 +23,7 @@
     "inquirer": "^6.0.0",
     "inquirer-autocomplete-prompt": "^0.12.2",
     "lodash": "^4.17.10",
+    "semver": "^5.5.0",
     "typescript": "^2.9.2"
   },
   "devDependencies": {
