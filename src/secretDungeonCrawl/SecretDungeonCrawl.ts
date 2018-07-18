@@ -18,7 +18,7 @@ export function isModuleResolutionError(e: Error): e is ModuleResolutionError {
 
 export class NodeModuleResolutionExposed {
 
-    public filename: string;
+    public readonly filename: string;
 
     constructor(filename: string, private localRequire: NodeRequire) {
         this.filename = filename;
