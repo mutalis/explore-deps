@@ -7,7 +7,7 @@ import { NodeModuleResolutionExposed } from "../secretDungeonCrawl/SecretDungeon
 import { itsaTrap, Trap } from "./Trap";
 
 export interface Room {
-    crawl: NodeModuleResolutionExposed;
+    crawl: NodeModuleResolutionExposed; /* note: go here to see a class */
     packageJson: PackageJSON;
     appDir: string;
 }
