@@ -1,5 +1,8 @@
 {
     "defaultSeverity": "warn",
+    /* "extends": [
+        "tslint:recommended"
+    ], */
     "rules": {
         "adjacent-overload-signatures": true,
         "align": {
