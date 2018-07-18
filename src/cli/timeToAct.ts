@@ -26,7 +26,8 @@ export async function timeToAct(room: Room, past: Room[]): ActionHappened {
 
     const answers: NextActionAnswers /* note 3: interesting union type */ =
         await requestNextAction(room, past); /* note 7: click in */
-    const nextAction: NextAction /* note 2: union of string types */ = answers.action;
+    const nextAction: NextAction /* note 2: union of string types */ =
+        answers.action;
     outputDebug(`You have chosen: ${nextAction}`);
     switch (answers.action) { /* note 4: try changing this to nextActions */
         case "exit":
