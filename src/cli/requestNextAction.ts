@@ -100,18 +100,24 @@ function colorFn(kind: DependencyKind): (txt: string) => string {
     return chalk.white;
 }
 
-function choiceFromDependendency(dep: SomeDependency): inquirer.objects.ChoiceOption {
+function choiceFromDependendency(dep: SomeDependency):
+    inquirer.objects.ChoiceOption {
     return {
         value: dep.name,
         name: colorFn(dep.kind)(dep.name + ":" + dep.versionRequested),
     };
 }
 
+export const VictoryDoor = { name: "Go toward it", value: "VICTORY" };
+
+export const NoDoor = { name: "-- nevermind --", value: "NEVERMIND" };
+
 function chooseDoor(p: Room): inquirer.Question<NextActionAnswers> {
     const listOfDependencies = allDependencies(p.packageJson);
     const choices = listOfDependencies.length === 0 ?
-        [{ name: "Go toward it", value: "VICTORY" }] :
-        listOfDependencies.map(choiceFromDependendency);
+        [VictoryDoor, NoDoor] :
+        listOfDependencies.map(choiceFromDependendency).concat(
+            NoDoor);
     const message = listOfDependencies.length === 0 ?
         `You see light ahead...` :
         `There are ${listOfDependencies.length} doors. Choose one to enter: `;

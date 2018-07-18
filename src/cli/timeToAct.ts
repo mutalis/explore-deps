@@ -10,7 +10,7 @@ import { describeMove } from "../support/describeMove";
 import { findLibraryRoot } from "../support/findLibraryRoot";
 import { itsaTrap, Trap } from "../support/Trap";
 import { greyish, output, outputCurrentState, outputDebug, outputDoom } from "./output";
-import { NextAction, NextActionAnswers, requestNextAction } from "./requestNextAction";
+import { NextAction, NextActionAnswers, requestNextAction, VictoryDoor, NoDoor } from "./requestNextAction";
 
 // want to:
 // - make it report the version of the current dep in each past room
@@ -130,9 +130,11 @@ async function tryToTeleport(params: { room: Room, past: Room[], lib: string }):
 }
 
 async function goThroughDoor(room: Room, past: Room[], door: string) {
-    if (door === "VICTORY") {
-        past.push(room);
-        return win(past);
+    if (door === VictoryDoor.value) {
+        return win([...past, room]);
+    }
+    if (door === NoDoor.value) {
+        return timeToAct(room, past);
     }
 
     output(`You have examined all the doors before you, and chosen: ${door}`);
