@@ -1,6 +1,7 @@
 import boxen from "boxen";
 import chalk from "chalk";
 import * as fs from "fs";
+// tslint:disable-next-line:import-name
 import _ from "lodash";
 import * as semver from "semver";
 
@@ -11,7 +12,7 @@ import { describeMove } from "../support/describeMove";
 import { findLibraryRoot } from "../support/findLibraryRoot";
 import { itsaTrap, Trap } from "../support/Trap";
 import { greyish, output, outputCurrentState, outputDebug, outputDoom } from "./output";
-import { NextAction, NextActionAnswers, requestNextAction, VictoryDoor, NoDoor } from "./requestNextAction";
+import { NextAction, NextActionAnswers, NoDoor, requestNextAction, VictoryDoor } from "./requestNextAction";
 
 type /* note 1: type alias */ ActionHappened = Promise<void>;
 
@@ -66,7 +67,7 @@ function describeVersionDifference(room: Room, past: Room[]): string {
         if (theyWanted.kind === "dev") {
             comment = "\n(it's a dev dependency, won't impact runtime)";
         } else if (theyWanted.kind === "peer") {
-            comment = "\nPeer dependencies are so tricky."
+            comment = "\nPeer dependencies are so tricky.";
         }
         return chalk.red(prefix +
             `But ${previousPackageName} wanted ${theyWanted.versionRequested}` +
@@ -104,7 +105,7 @@ async function checkGPS(room: Room): ActionHappened {
 }
 
 function greyNonexistent(d: string) {
-    /* NOTE tslint: since I updated dirExists to be async, this is a bug 
+    /* NOTE tslint: since I updated dirExists to be async, this is a bug
        It can be discovered with strict-boolean-expressions, bug ugh */
     if (dirExists(d)) {
         return d;
@@ -164,7 +165,7 @@ async function goThroughDoor(room: Room, past: Room[], door: string) {
 }
 
 function guessAtReason(room: Room, failedDoor: string): string | undefined {
-    const dep = allDependencies(room.packageJson).find(d => d.name === failedDoor);
+    const dep = allDependencies(room.packageJson).find((d) => d.name === failedDoor);
     if (dep && dep.kind === "dev") {
         return `Fortunately, this is a dev dependency, so ${room.packageJson.name} only needs it at build time.`;
     }

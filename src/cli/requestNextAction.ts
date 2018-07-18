@@ -1,11 +1,11 @@
 import chalk from "chalk";
 import * as inquirer from "inquirer";
-import inquirerAutocomplete from "inquirer-autocomplete-prompt";
+import inquirerAutocompletePrompt from "inquirer-autocomplete-prompt";
 import { allDependencies, DependencyKind, SomeDependency } from "../support/allDependencies";
 import { Room } from "../support/buildRoom";
 import { greyish } from "./output";
 
-inquirer.registerPrompt("autocomplete", inquirerAutocomplete);
+inquirer.registerPrompt("autocomplete", inquirerAutocompletePrompt);
 
 export type NextAction = "exit" | "doors" | "back" | "teleport" | "gps" | "look";
 

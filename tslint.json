@@ -4,6 +4,7 @@
         "tslint:recommended"
     ], */
     "rules": {
+        "import-name": true,
         "adjacent-overload-signatures": true,
         "align": {
             "options": [
@@ -145,7 +146,6 @@
         "ordered-imports": {
             "options": {
                 "import-sources-order": "case-insensitive",
-                "module-source-path": "full",
                 "named-imports-order": "case-insensitive"
             }
         },
@@ -333,5 +333,7 @@
             ]
         }
     },
-    "rulesDirectory": []
+    "rulesDirectory": [
+        "node_modules/tslint-microsoft-contrib"
+    ]
 }

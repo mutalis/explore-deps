@@ -1,7 +1,8 @@
 import * as fs from "fs";
+// tslint:disable-next-line:import-name
 import _ from "lodash";
 import * as path from "path";
-import ts from "typescript";
+import typescript from "typescript";
 import { promisify } from "util";
 import { isModuleResolutionError, NodeModuleResolutionExposed } from "../secretDungeonCrawl/SecretDungeonCrawl";
 import { Trap } from "./Trap";
@@ -33,7 +34,7 @@ export async function findLibraryRoot(lib: string,
 }
 
 function resolveWithTS(lib: string, crawl: NodeModuleResolutionExposed): ModuleResolutionResult {
-    const tsResolution = ts.resolveModuleName(lib, crawl.filename, {}, ts.sys);
+    const tsResolution = typescript.resolveModuleName(lib, crawl.filename, {}, typescript.sys);
     return {
         kind: "ts",
         isResolved: tsResolution.resolvedModule != null, /* note: double vs triple equal */
