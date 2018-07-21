@@ -34,12 +34,6 @@ export async function findLibraryRoot(lib: string,
 }
 
 function resolveWithTS(lib: string, crawl: NodeModuleResolutionExposed): ModuleResolutionResult {
-
-    const program = typescript.createProgram([crawl.filename], {});
-    const checker = program.getTypeChecker();
-    const ab = checker.getAmbientModules();
-    console.log("JESS: " + ab.map(s => s.escapedName).sort().join("\n"));
-
     const tsResolution = typescript.resolveModuleName(lib, crawl.filename, {}, typescript.sys);
     return {
         kind: "ts",
