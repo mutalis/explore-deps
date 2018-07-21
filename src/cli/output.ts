@@ -1,8 +1,6 @@
 // tslint:disable:no-console
 import chalk from "chalk";
-import foo from "foo";
-
-foo.poo;
+import boxen from "boxen";
 
 const Greyish = "#999999";
 export const greyish = chalk.hex(Greyish);

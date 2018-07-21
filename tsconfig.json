@@ -1,7 +1,7 @@
 {
   "include": [
     "src/**/*.ts",
-    "src/**/*.js"
+    "types/**/*.d.ts"
   ],
   "compileOnSave": true,
   "compilerOptions": {
