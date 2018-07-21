@@ -15,7 +15,7 @@ interface ModuleResolutionResult {
 }
 
 export async function findLibraryRoot(lib: string,
-                                      crawl: NodeModuleResolutionExposed): Promise<string | Trap> {
+    crawl: NodeModuleResolutionExposed): Promise<string | Trap> {
 
     const resolutionAttempts = [
         resolveWithNode(lib, crawl),
@@ -34,6 +34,12 @@ export async function findLibraryRoot(lib: string,
 }
 
 function resolveWithTS(lib: string, crawl: NodeModuleResolutionExposed): ModuleResolutionResult {
+
+    const program = typescript.createProgram([crawl.filename], {});
+    const checker = program.getTypeChecker();
+    const ab = checker.getAmbientModules();
+    console.log("JESS: " + ab.map(s => s.escapedName).sort().join("\n"));
+
     const tsResolution = typescript.resolveModuleName(lib, crawl.filename, {}, typescript.sys);
     return {
         kind: "ts",
@@ -62,7 +68,7 @@ function resolveWithNode(lib: string, crawl: NodeModuleResolutionExposed): Modul
 }
 
 async function firstParentDirectoryWithAPackageJson(dir: string,
-                                                    origDir: string = dir): Promise<string | Trap> {
+    origDir: string = dir): Promise<string | Trap> {
     try {
         const stat = await promisify(fs.stat)(path.join(dir, "package.json"));
         if (stat.isFile()) {
