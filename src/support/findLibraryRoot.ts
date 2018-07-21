@@ -2,25 +2,18 @@ import * as fs from "fs";
 // tslint:disable-next-line:import-name
 import _ from "lodash";
 import * as path from "path";
-import typescript from "typescript";
 import { promisify } from "util";
 import { isModuleResolutionError, NodeModuleResolutionExposed } from "../secretDungeonCrawl/SecretDungeonCrawl";
 import { Trap } from "./Trap";
 import { Room } from "./buildRoom";
-
-interface ModuleResolutionResult {
-    kind: "node" | "ts";
-    isResolved: boolean;
-    resolvedFileName?: string;
-    failedLookupLocations: string[];
-}
+import { resolveWithTS } from "./moduleResolution/resolveWithTs";
 
 export async function findLibraryRoot(lib: string,
     room: Room): Promise<string | Trap> {
 
     const resolutionAttempts = [
         resolveWithNode(lib, room.crawl),
-        resolveWithTS(lib, room),
+        await resolveWithTS(lib, room),
     ];
     const resolved = resolutionAttempts.find((ra) => ra.isResolved);
 
@@ -34,22 +27,8 @@ export async function findLibraryRoot(lib: string,
     return firstParentDirectoryWithAPackageJson(path.dirname(resolved.resolvedFileName as string));
 }
 
-function resolveWithTS(lib: string, room: Room): ModuleResolutionResult {
 
-    const compilerOptions = {}; //readTsConfig()
-    const program = typescript.createProgram([room.crawl.filename], {});
-    const checker = program.getTypeChecker();
-    const ab = checker.getAmbientModules();
-    console.log("JESS: " + ab.map(s => s.escapedName).sort().join("\n"));
 
-    const tsResolution = typescript.resolveModuleName(lib, crawl.filename, {}, typescript.sys);
-    return {
-        kind: "ts",
-        isResolved: tsResolution.resolvedModule != null, /* note: double vs triple equal */
-        failedLookupLocations: (tsResolution as any).failedLookupLocations,
-        resolvedFileName: _.get(tsResolution, "resolvedModule.resolvedFileName"),
-    };
-}
 
 function resolveWithNode(lib: string, crawl: NodeModuleResolutionExposed): ModuleResolutionResult {
     try {
