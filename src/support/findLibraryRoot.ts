@@ -6,6 +6,7 @@ import typescript from "typescript";
 import { promisify } from "util";
 import { isModuleResolutionError, NodeModuleResolutionExposed } from "../secretDungeonCrawl/SecretDungeonCrawl";
 import { Trap } from "./Trap";
+import { Room } from "./buildRoom";
 
 interface ModuleResolutionResult {
     kind: "node" | "ts";
@@ -15,11 +16,11 @@ interface ModuleResolutionResult {
 }
 
 export async function findLibraryRoot(lib: string,
-    crawl: NodeModuleResolutionExposed): Promise<string | Trap> {
+    room: Room): Promise<string | Trap> {
 
     const resolutionAttempts = [
-        resolveWithNode(lib, crawl),
-        resolveWithTS(lib, crawl),
+        resolveWithNode(lib, room.crawl),
+        resolveWithTS(lib, room),
     ];
     const resolved = resolutionAttempts.find((ra) => ra.isResolved);
 
@@ -33,10 +34,10 @@ export async function findLibraryRoot(lib: string,
     return firstParentDirectoryWithAPackageJson(path.dirname(resolved.resolvedFileName as string));
 }
 
-function resolveWithTS(lib: string, crawl: NodeModuleResolutionExposed): ModuleResolutionResult {
+function resolveWithTS(lib: string, room: Room): ModuleResolutionResult {
 
     const compilerOptions = {}; //readTsConfig()
-    const program = typescript.createProgram([crawl.filename], {});
+    const program = typescript.createProgram([room.crawl.filename], {});
     const checker = program.getTypeChecker();
     const ab = checker.getAmbientModules();
     console.log("JESS: " + ab.map(s => s.escapedName).sort().join("\n"));

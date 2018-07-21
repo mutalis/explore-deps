@@ -128,7 +128,7 @@ async function tryToTeleport(params: { room: Room, past: Room[], lib: string }):
     const { room, past, lib } = params;
 
     output(`You want to go to: ${lib}`);
-    const otherSide = await findLibraryRoot(lib, room.crawl);
+    const otherSide = await findLibraryRoot(lib, room);
     if (itsaTrap(otherSide)) {
         output(otherSide.details || otherSide.error.message);
         outputDoom(chalk.yellow(`Your teleport fails.\n${lib} is not reachable from ${room.packageJson.name}`));
@@ -151,7 +151,7 @@ async function goThroughDoor(room: Room, past: Room[], door: string) {
     }
 
     output(`You have examined all the doors before you, and chosen: ${door}`);
-    const otherSide = await findLibraryRoot(door, room.crawl);
+    const otherSide = await findLibraryRoot(door, room);
     if (itsaTrap(otherSide)) {
         return omg(otherSide, room, past, guessAtReason(room, door));
     }
