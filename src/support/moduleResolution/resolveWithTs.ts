@@ -15,6 +15,12 @@ export async function resolveWithTS(lib: string, room: Room): Promise<ModuleReso
     const checker = program.getTypeChecker();
     const ab = checker.getAmbientModules();
     console.log("JESS: " + ab.map(s => s.escapedName).sort().join("\n"));
+    // I just had a brilliant idea.
+    // I checked my luggage. I will have to wait 20 minutes for it to come out anyway.
+    // I can get my $2 tasting at Vino Volo before I leave the terminal!!
+    // (again, since I got it once in Denver already wahahahaha)
+    // JESS that is brilliant! It makes checking luggage not painful! love ittttt
+    // can you tell I have a g&t on the plane
 
     const tsResolution = typescript.resolveModuleName(lib,
         room.crawl.filename, // I think only the directory matters
