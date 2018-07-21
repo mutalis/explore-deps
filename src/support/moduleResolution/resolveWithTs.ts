@@ -8,9 +8,26 @@ import { promisify } from "util";
 // tslint:disable-next-line:import-name
 import _ from "lodash";
 
+/* note: You can extend interfaces.
+ * Like, re-open them and add properties.
+ * This cannot be a good idea, especially with required properties;
+ * the value of the type would depend on which files you have imported.
+ * Buuuuut hey, this is a demo project 
+ * and I just learned this trick today while reading the spec
+ * wahahahahaha!
+ */
+/*
+ * No, I just overwrote it because that one is in a different module.
+ * This can only work in the global space, I think
+ */
+interface ModuleResolutionResult {
+    readTsConfig?: boolean
+}
+
 export async function resolveWithTS(lib: string, room: Room): Promise<ModuleResolutionResult> {
 
-    const compilerOptions = await readTsConfig(room.appDir) || {}; //readTsConfig()
+    const realCompilerOptions = await readTsConfig(room.appDir); //readTsConfig()
+    const compilerOptions = realCompilerOptions || {};
     const program = typescript.createProgram([room.crawl.filename], compilerOptions);
     const checker = program.getTypeChecker();
     const ab = checker.getAmbientModules();
@@ -31,6 +48,7 @@ export async function resolveWithTS(lib: string, room: Room): Promise<ModuleReso
         isResolved: tsResolution.resolvedModule != null, /* note: double vs triple equal */
         failedLookupLocations: (tsResolution as any).failedLookupLocations,
         resolvedFileName: _.get(tsResolution, "resolvedModule.resolvedFileName"),
+        usedTsConfig: !!realCompilerOptions;
     };
 }
 
