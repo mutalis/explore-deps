@@ -15,7 +15,7 @@ export async function findLibraryRoot(lib: string,
         resolveWithNode(lib, room.crawl),
         await resolveWithTS(lib, room),
     ];
-    console.log("Resolution results: " + JSON.stringify(resolutionAttempts));
+    // console.log("Resolution results: " + JSON.stringify(resolutionAttempts));
     const resolved = resolutionAttempts.find((ra) => ra.isResolved);
 
     if (!resolved) {
