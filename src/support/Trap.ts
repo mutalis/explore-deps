@@ -4,8 +4,8 @@ export interface Trap {
     details?: string;
 }
 
-export function itsaTrap(t: any): t is Trap {
+export function itsaTrap(t: Trap | string | object): t is Trap {
     const maybe = t as Trap;
-    return maybe.error !== undefined &&
-        maybe.description !== undefined;
+    return !!maybe.error &&
+        !!maybe.description;
 }

@@ -15,6 +15,7 @@ export async function findLibraryRoot(lib: string,
         resolveWithNode(lib, room.crawl),
         await resolveWithTS(lib, room),
     ];
+    console.log("Resolution results: " + JSON.stringify(resolutionAttempts));
     const resolved = resolutionAttempts.find((ra) => ra.isResolved);
 
     if (!resolved) {
@@ -26,9 +27,6 @@ export async function findLibraryRoot(lib: string,
     }
     return firstParentDirectoryWithAPackageJson(path.dirname(resolved.resolvedFileName as string));
 }
-
-
-
 
 function resolveWithNode(lib: string, crawl: NodeModuleResolutionExposed): ModuleResolutionResult {
     try {
