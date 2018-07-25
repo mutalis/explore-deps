@@ -35,7 +35,8 @@ It appears to be version ${room.packageJson.version}.`
         case "teleport":
             return tryToTeleport({ room, past, lib: answers.destination });
         case "look":
-            return lookAround(room, past); /* note 6: object destructuring */
+            await lookAround(room, past); /* note 6: object destructuring */
+            return timeToAct(room, past);
         case "gps":
             await checkGPS(room);
             return timeToAct(room, past);
@@ -69,7 +70,7 @@ function describeVersionDifference(room: Room, past: Room[]): string {
     }
 }
 
-export async function lookAround(room: Room, past: Room[]) {
+export async function lookAround(room: Room, past: Room[]): ActionHappened {
     const { author, license, description, repository, main } =
         room.packageJson; /* note: change to nested destructure */
     const usefulMessage = `${description}
@@ -87,7 +88,6 @@ main: ${main || "index.ts"}`;
         float: "center",
         borderColor: "magenta",
     }));
-    return timeToAct(room, past);
 }
 
 async function checkGPS(room: Room): ActionHappened {
