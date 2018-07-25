@@ -3,7 +3,6 @@ import chalk from "chalk";
 import * as fs from "fs";
 // tslint:disable-next-line:import-name
 import _ from "lodash";
-import * as semver from "semver";
 
 import { promisify } from "util";
 import { allDependencies } from "../support/allDependencies";
@@ -13,6 +12,7 @@ import { findLibraryRoot } from "../support/findLibraryRoot";
 import { itsaTrap, Trap } from "../support/Trap";
 import { greyish, output, outputCurrentState, outputDebug, outputDoom } from "./output";
 import { NextAction, NextActionAnswers, NoDoor, requestNextAction, VictoryDoor } from "./requestNextAction";
+import { compareDependencies } from "../support/compareDependencies";
 
 type /* note 1: type alias */ ActionHappened = Promise<void>;
 
@@ -51,28 +51,21 @@ function describeVersionDifference(room: Room, past: Room[]): string {
     }
     const weGotHereFrom: Room = past[0];
     const theyWanted = allDependencies(weGotHereFrom.packageJson).find((d) => d.name === room.packageJson.name);
-    const theyGot = room.packageJson.version;
-    const previousPackageName = weGotHereFrom.packageJson.name;
     if (theyWanted === undefined) {
         return "";
     }
-    if (theyWanted.versionRequested === theyGot) {
-        return chalk.green(prefix + `Just what ${previousPackageName} wanted.`);
-    }
 
-    if (semver.satisfies(theyGot, theyWanted.versionRequested)) {
-        return chalk.green(prefix +
-            `${previousPackageName} wanted ${theyWanted.versionRequested}`);
-    } else {
-        let comment = "";
-        if (theyWanted.kind === "dev") {
-            comment = "\n(it's a dev dependency, won't impact runtime)";
-        } else if (theyWanted.kind === "peer") {
-            comment = "\nPeer dependencies are so tricky.";
-        }
-        return chalk.red(prefix +
-            `But ${previousPackageName} wanted ${theyWanted.versionRequested}` +
-            comment);
+    const comparison = compareDependencies(room.packageJson.version,
+        theyWanted.versionRequested,
+        weGotHereFrom.packageJson.name,
+        theyWanted.kind);
+    switch (comparison.severity) {
+        case "ok":
+            return prefix + chalk.green(comparison.message);
+        case "warning":
+            return prefix + chalk.yellow(comparison.message)
+        case "error":
+            return prefix + chalk.red(comparison.message);
     }
 }
 

@@ -7,7 +7,7 @@ declare module "package-json" {
 
         readonly name: string;
 
-        readonly version?: string;
+        readonly version: string;
 
         readonly description?: string;
 
