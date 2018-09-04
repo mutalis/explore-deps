@@ -176,6 +176,7 @@ async function omg(trap: Trap, room: Room, past: Room[], possibleReason?: string
 }
 
 async function win(past: Room[]): ActionHappened {
+
     output(boxen("YOU WIN!", { borderColor: "greenBright", padding: 2, float: "center", borderStyle: "double" }));
     return;
 }
