@@ -25,7 +25,7 @@ export function compareDependencies(theyGot: string,
     if (semver.satisfies(theyGot, theyWanted)) {
         return {
             severity: "ok",
-            message: `${requestingPackageName} wanted ${theyWanted}`)
+            message: `${requestingPackageName} wanted ${theyWanted}`,
         };
     } else {
         let comment = "";
