@@ -41,6 +41,7 @@
     "test": "mocha --require ts-node/register 'src/**/*.test.ts' 'src/**/*.test.js'",
     "compile": "tsc",
     "lint": "tslint --format verbose --project tsconfig.json",
+    "lint:fix": "tslint --fix --format verbose --project tsconfig.json",
     "clean": "rimraf lib",
     "build": "npm-run-all clean compile test lint"
   },

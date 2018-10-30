@@ -1,19 +1,19 @@
 import * as semver from "semver";
 
 export interface DependencyComparison {
-    severity: "ok" | "warning" | "error",
-    message: string
+    severity: "ok" | "warning" | "error";
+    message: string;
 }
 
 export function compareDependencies(theyGot: string,
-    theyWanted: string,
-    requestingPackageName: string,
-    requestedDependencyKind: "peer" | "dev" | "full"): DependencyComparison {
+                                    theyWanted: string,
+                                    requestingPackageName: string,
+                                    requestedDependencyKind: "peer" | "dev" | "full"): DependencyComparison {
 
     if (theyWanted === theyGot) {
         return {
             severity: "ok",
-            message: `Just what ${requestingPackageName} wanted.`
+            message: `Just what ${requestingPackageName} wanted.`,
         };
     }
 
@@ -37,12 +37,14 @@ export function compareDependencies(theyGot: string,
         return {
             severity: "error",
             message: `But ${requestingPackageName} wanted ${theyWanted}` +
-                comment
+                comment,
         };
     }
 }
 
-function semverMightScrewThisUp(actualVersion: string, requestedVersion: string, requestingPackageName: string): DependencyComparison | undefined {
+function semverMightScrewThisUp(actualVersion: string,
+                                requestedVersion: string,
+                                requestingPackageName: string): DependencyComparison | undefined {
 
     if (!requestedVersion.includes("-")) {
         return undefined;
@@ -52,9 +54,16 @@ function semverMightScrewThisUp(actualVersion: string, requestedVersion: string,
         return undefined; // great
     }
     if (afterTheDash(actualVersion) === afterTheDash(requestedVersion)) {
-        return { severity: "warning", message: `${requestingPackageName} wanted ${requestedVersion}. Looks OK in this case, but watch out: semver does NOT work well for snapshots` }
+        return {
+            severity: "warning",
+            message: `${requestingPackageName} wanted ${
+                requestedVersion}. Looks OK in this case, but watch out: semver does NOT work well for snapshots`,
+        };
     }
-    return { severity: "error", message: `${requestingPackageName} wanted ${requestedVersion}. Semver does NOT work well for snapshots` }
+    return {
+        severity: "error",
+        message: `${requestingPackageName} wanted ${requestedVersion}. Semver does NOT work well for snapshots`,
+    };
 
 }
 

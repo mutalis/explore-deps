@@ -1,6 +1,6 @@
 // tslint:disable:no-console
-import chalk from "chalk";
 import boxen from "boxen";
+import chalk from "chalk";
 
 const Greyish = "#999999";
 export const greyish = chalk.hex(Greyish);
@@ -18,7 +18,7 @@ export function outputDoom(str: string) {
         padding: 0,
         borderColor: "red",
         borderStyle: "double",
-        float: "center"
+        float: "center",
     }));
 }
 

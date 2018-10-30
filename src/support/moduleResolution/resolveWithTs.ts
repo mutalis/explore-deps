@@ -1,14 +1,14 @@
 
-import typescript, { ParseConfigFileHost, CompilerOptions } from "typescript";
-import { Room } from "../buildRoom";
 import * as path from "path";
+import typescript, { CompilerOptions, ParseConfigFileHost } from "typescript";
+import { Room } from "../buildRoom";
 
 // tslint:disable-next-line:import-name
 import _ from "lodash";
 
 export async function resolveWithTS(lib: string, room: Room): Promise<ModuleResolutionResult> {
 
-    const realCompilerOptions = await readTsConfig(room.appDir); //readTsConfig()
+    const realCompilerOptions = await readTsConfig(room.appDir); // readTsConfig()
     const compilerOptions = realCompilerOptions || {};
     // const program = typescript.createProgram([room.crawl.filename], compilerOptions);
     // const checker = program.getTypeChecker();
@@ -30,7 +30,7 @@ export async function resolveWithTS(lib: string, room: Room): Promise<ModuleReso
 
 /**
  * You can't just JSON.parse a tsconfig.json, because it might have comments.
- * 
+ *
  * @param libDir top-level directory of the project which might have a tsconfig
  */
 async function readTsConfig(libDir: string): Promise<CompilerOptions | undefined> {
@@ -38,12 +38,12 @@ async function readTsConfig(libDir: string): Promise<CompilerOptions | undefined
     // I have no idea how you're supposed to get one of these
     const host: ParseConfigFileHost =
         {
-            onUnRecoverableConfigFileDiagnostic: () => { },
+            onUnRecoverableConfigFileDiagnostic: () => { /* empty */ },
             ...typescript.sys,
         } as any as ParseConfigFileHost;
 
     const pcl = typescript.getParsedCommandLineOfConfigFile(
-        path.join(libDir, "tsConfig.json"), {}, host)
+        path.join(libDir, "tsConfig.json"), {}, host);
     return pcl && pcl.options;
 
 }

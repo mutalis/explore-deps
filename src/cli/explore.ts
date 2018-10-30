@@ -2,7 +2,7 @@
 
 import { buildRoom } from "../support/buildRoom";
 import { itsaTrap } from "../support/Trap";
-import { output, outputDebug, outputDoom, outputCurrentState } from "./output";
+import { output, outputCurrentState, outputDebug, outputDoom } from "./output";
 import { timeToAct } from "./timeToAct";
 
 async function explore(startingDir: string) {
@@ -16,7 +16,7 @@ async function explore(startingDir: string) {
         `Welcome to the dungeon of ${room.packageJson.name} and its dependencies.
 Node works with dependencies on the local filesystem (usually put there by npm).
 These dependency paths can be winding. Good luck finding an exit to this dungeon.`,
-        { borderStyle: "double", })
+        { borderStyle: "double" });
 
     await timeToAct(room, []);
     output("Thank you for visiting.");

@@ -4,12 +4,12 @@ import _ from "lodash";
 import * as path from "path";
 import { promisify } from "util";
 import { isModuleResolutionError, NodeModuleResolutionExposed } from "../secretDungeonCrawl/SecretDungeonCrawl";
-import { Trap } from "./Trap";
 import { Room } from "./buildRoom";
 import { resolveWithTS } from "./moduleResolution/resolveWithTs";
+import { Trap } from "./Trap";
 
 export async function findLibraryRoot(lib: string,
-    room: Room): Promise<string | Trap> {
+                                      room: Room): Promise<string | Trap> {
 
     const resolutionAttempts = [
         resolveWithNode(lib, room.crawl),
@@ -47,7 +47,7 @@ function resolveWithNode(lib: string, crawl: NodeModuleResolutionExposed): Modul
 }
 
 async function firstParentDirectoryWithAPackageJson(dir: string,
-    origDir: string = dir): Promise<string | Trap> {
+                                                    origDir: string = dir): Promise<string | Trap> {
     try {
         const stat = await promisify(fs.stat)(path.join(dir, "package.json"));
         if (stat.isFile()) {

@@ -1,6 +1,6 @@
 import { DependencyMap, PackageJSON } from "package-json";
 
-/* 
+/*
 *package.json has three dependency sections
 */
 export type DependencyKind = "dev" | "peer" | "full";

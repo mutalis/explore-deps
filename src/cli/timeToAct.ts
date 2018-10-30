@@ -7,12 +7,12 @@ import _ from "lodash";
 import { promisify } from "util";
 import { allDependencies } from "../support/allDependencies";
 import { buildRoom, Room } from "../support/buildRoom";
+import { compareDependencies } from "../support/compareDependencies";
 import { describeMove } from "../support/describeMove";
 import { findLibraryRoot } from "../support/findLibraryRoot";
 import { itsaTrap, Trap } from "../support/Trap";
 import { greyish, output, outputCurrentState, outputDebug, outputDoom } from "./output";
 import { NextAction, NextActionAnswers, NoDoor, requestNextAction, VictoryDoor } from "./requestNextAction";
-import { compareDependencies } from "../support/compareDependencies";
 
 type /* note 1: type alias */ ActionHappened = Promise<void>;
 
@@ -64,7 +64,7 @@ function describeVersionDifference(room: Room, past: Room[]): string {
         case "ok":
             return prefix + chalk.green(comparison.message);
         case "warning":
-            return prefix + chalk.yellow(comparison.message)
+            return prefix + chalk.yellow(comparison.message);
         case "error":
             return prefix + chalk.red(comparison.message);
     }
